@@ -1,0 +1,14 @@
+<p> Listing levels within topic </p>
+
+
+
+Session inspect: 
+<%= session[:userID] %>
+Number of levels
+<table>
+<% for i in 1..@topic.numberOfLevels %>
+  <tr>
+    <td><%= 'Level ' + i.to_s %> <%= link_to 'Respond', controller: 'questions', action: 'show', forLevel: i  %>
+  </tr>
+<% end %>
+</table>

@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  topic: MyString
+  level: 1
+  body: MyString
+  solution: MyString
+
+two:
+  topic: MyString
+  level: 1
+  body: MyString
+  solution: MyString

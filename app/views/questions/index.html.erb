@@ -1,0 +1,19 @@
+
+<h1>Listing questions</h1>
+ 
+<table>
+  <tr>
+    <th>Body</th>
+    <th>Level</th>
+  </tr>
+ 
+  <% @questions.each do |question| %>
+    <tr>
+      <td><%= question.number %></td>
+      <td><%= link_to 'Show', question_path(question) %></td>
+      <td><%= link_to 'Edit', question_path(question) %></td>
+    </tr>
+  <% end %>
+</table>
+
+<%= link_to 'New question', new_question_path %>
