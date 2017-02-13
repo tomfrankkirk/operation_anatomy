@@ -1,21 +1,44 @@
 class QuestionsController < ApplicationController
 
-    # Hardcoded to fetch tom from db. 
+    def respond
+        # @user = _findUser
+        @message = "A message from the server to say hello"
 
-    def show
-        @user = User.find(session[:userID])
-        puts "Gathering questions for user with id #{ ( User.find( session[:userID] ) ).id }"
-        session[:questionIDs] = (Topic.find(params[:id])).fetchQuestionIDsForLevel(params[:forLevel])
-        #@user.prepareQuestionsForUserResponse(params[:id], params[:forLevel])
+        respond_to do |format|  
+
+            format.html
+
+            format.js { puts "JS FORMAT CALLED" }
+  
+            #     @topic = _findTopic
+            #     puts "Gathering questions for user with id #{ @user.id }"
+            #     @user.prepareQuestionsForUserResponse(@topic.id, params[:forLevel])
+            #     @question = Question.find(@user.sendNextQuestion)
+            #     render 'respond'
+            # }
+
+
+            #     puts params
+            #     puts "Parameters go here"
+            #     # The session cookie isn't being sent along with this - need to send the userID as part of the AJAX request. 
+            #     puts "User response was #{params[:userResponse]}"
+            #     @question = Question.find(@user.sendNextQuestion)
+            #     puts "Sending next question "
+            #     puts "Sending next question L#{@question.level}, N#{@question.number}"
+            #     render json: { message: "Data from the server" }
+            
+
+        end
+
     end
 
-    def respond
-        
-    end 
-
     private 
-    def question_params
-        params.require(:question).permit(:body, :level)
+    def _findUser
+        User.find(session[:userID])
+    end
+
+    def _findTopic
+        Topic.find(params[:forTopic])
     end
 
 end

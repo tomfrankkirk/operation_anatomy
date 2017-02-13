@@ -8,9 +8,10 @@ Rails.application.routes.draw do
   get    '/login',   to: 'sessions#new'
   post   '/login',   to: 'sessions#create'
   delete '/logout',  to: 'sessions#destroy'
+  get    '/questions', to: 'questions#respond'
+  post   '/questions', to: 'questions#respond'
 
   #automatic routes go here
-  resources :questions
   resources :topics
 
 end

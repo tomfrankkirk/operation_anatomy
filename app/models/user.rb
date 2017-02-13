@@ -17,4 +17,10 @@ class User < ApplicationRecord
         self.save
     end
 
+    def sendNextQuestion
+        @next = self.questionIDs.pop
+        self.save
+        return @next
+    end
+    
 end
