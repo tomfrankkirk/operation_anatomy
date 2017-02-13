@@ -3,9 +3,9 @@ Listing questions
 <br>
 <br>
 
-<%= link_to 'Do something', remote: true %>
+<%= link_to 'Get the first question', remote: true, forUser: session[:userID], forTopic: session[:topicID] %>
 
 <div id="questionArea">
-    Here are the questions. Ready?
+
 </div>
 

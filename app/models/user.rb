@@ -12,12 +12,12 @@ class User < ApplicationRecord
     # track of a user's progress through a set of questions, so the user's state must be 
     # stored within the user object (and so in the database table)
 
-    def prepareQuestionsForUserResponse(topicID, level)
+    def prepareQuestions(topicID, level)
         self.questionIDs =  Topic.find(topicID).fetchQuestionIDsForLevel(level)
         self.save
     end
 
-    def sendNextQuestion
+    def sendNextQuestionID
         @next = self.questionIDs.pop
         self.save
         return @next
