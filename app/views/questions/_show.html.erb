@@ -1,4 +1,9 @@
 This is the partial!
     <%= "L" + @question.level.to_s %> <br>
     <%= "N" + @question.number.to_s %> <br>
-    <%= @question.body %> <br>
+     <%= @question.body %> <br>
+    <% @question.possibleSolutions.each do |sol| %>
+        <%= link_to sol, remote: true, userResponse: sol, session: session %><br>
+
+    <% end %>
+    

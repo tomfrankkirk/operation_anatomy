@@ -12,6 +12,9 @@
 
 ActiveRecord::Schema.define(version: 20170130151310) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "questions", force: :cascade do |t|
     t.integer  "number"
     t.integer  "level"
@@ -21,7 +24,7 @@ ActiveRecord::Schema.define(version: 20170130151310) do
     t.integer  "topic_id"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
-    t.index ["topic_id"], name: "index_questions_on_topic_id"
+    t.index ["topic_id"], name: "index_questions_on_topic_id", using: :btree
   end
 
   create_table "topics", force: :cascade do |t|
@@ -32,9 +35,13 @@ ActiveRecord::Schema.define(version: 20170130151310) do
 
   create_table "users", force: :cascade do |t|
     t.string   "name"
+    t.string   "email"
+    t.string   "password"
     t.text     "questionIDs"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.jsonb    "scoresDictionary", default: {}
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.index ["scoresDictionary"], name: "index_users_on_scoresDictionary", using: :btree
   end
 
 end
