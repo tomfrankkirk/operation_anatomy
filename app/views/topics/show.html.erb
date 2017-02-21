@@ -1,12 +1,23 @@
 <p> Listing levels within topic </p>
 
-Session inspect: 
-<%= session[:userID] %>
-Number of levels
 <table>
-<% for i in 1..@topic.numberOfLevels %>
   <tr>
-    <td><%= 'Level ' + i.to_s %> <%= link_to 'Respond', controller: 'questions', action: 'respond', forLevel: i, forTopic: @topic.id  %>
+    <th>Level</th>
+    <th>Previous high score</th>
   </tr>
-<% end %>
+
+  <% maxLevel = @user.checkLevelAccess(@topic.id) %>
+ 
+  <% for i in 1..@topic.numberOfLevels %>
+    <tr>
+      <% if i <= maxLevel %>
+        <td><%= 'Level ' + i.to_s %> <%= link_to 'Respond', controller: 'questions', action: 'respond', forLevel: i, forTopic: @topic.id  %></td>
+        <td><% if scoreRecord = @user.getLevelScore(@topic.id, i) %>
+              <%= "#{scoreRecord["score"]}% on  #{scoreRecord["date"]}" %>
+            <% end %></td>
+      <% else %>
+        <td><%= 'Level ' + i.to_s %>
+      <% end %>
+    </tr>
+  <% end %>
 </table>

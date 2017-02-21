@@ -39,6 +39,7 @@ ActiveRecord::Schema.define(version: 20170130151310) do
     t.string   "password"
     t.text     "questionIDs"
     t.jsonb    "scoresDictionary", default: {}
+    t.integer  "currentScore",     default: 0
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
     t.index ["scoresDictionary"], name: "index_users_on_scoresDictionary", using: :btree

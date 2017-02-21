@@ -6,6 +6,7 @@ class TopicsController < ApplicationController
   end
 
   def show 
+      @user = User.find(session[:userID])
       @topic = Topic.find(params[:id])
       session[:topicID] = @topic.id
   end

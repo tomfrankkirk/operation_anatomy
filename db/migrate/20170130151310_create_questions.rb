@@ -10,6 +10,7 @@ class CreateQuestions < ActiveRecord::Migration[5.0]
       t.belongs_to :topic, index: true
       t.timestamps
     end
+
   end
 
 end

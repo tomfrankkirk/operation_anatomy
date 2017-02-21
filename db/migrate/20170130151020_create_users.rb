@@ -9,6 +9,7 @@ class CreateUsers < ActiveRecord::Migration[5.0]
 
       t.column :questionIDs, :text
       t.column :scoresDictionary, :jsonb, default: {}
+      t.column :currentScore, :integer, default: 0
       t.timestamps
     end
 

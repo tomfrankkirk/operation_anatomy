@@ -16,6 +16,10 @@ class Topic < ApplicationRecord
         questionIDs.shuffle
     end
 
+    def numberOfQuestionsInLevel(level)
+        return (self.questions.where("level = ?", level)).count
+    end 
+
     def numberOfLevels
         self.questions.maximum("level")
     end
