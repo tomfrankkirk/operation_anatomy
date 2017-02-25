@@ -1,18 +1,20 @@
-<p> Listing levels within topic </p>
+<h1> <%= @topic.name %> </h1>
 
 <table>
   <tr>
     <th>Level</th>
+    <th></th>
     <th>Previous high score</th>
   </tr>
 
-  <% maxLevel = @user.checkLevelAccess(@topic.id) %>
+  <% maxLevel = current_user.checkLevelAccess(@topic.id) %>
  
   <% for i in 1..@topic.numberOfLevels %>
     <tr>
       <% if i <= maxLevel %>
-        <td><%= 'Level ' + i.to_s %> <%= link_to 'Respond', controller: 'questions', action: 'respond', forLevel: i, forTopic: @topic.id  %></td>
-        <td><% if scoreRecord = @user.getLevelScore(@topic.id, i) %>
+        <td><%= 'Level ' + i.to_s %> <%= link_to 'Questions', controller: 'questions', action: 'respond', forLevel: i, forTopic: @topic.id  %></td>
+        <td><%= link_to 'Teaching', controller: 'teaching', action: 'show', forTopic: @topic.id, forLevel: i %>
+        <td><% if scoreRecord = current_user.getLevelScore(@topic.id, i) %>
               <%= "#{scoreRecord["score"]}% on  #{scoreRecord["date"]}" %>
             <% end %></td>
       <% else %>

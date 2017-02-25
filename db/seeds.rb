@@ -11,7 +11,7 @@ User.delete_all
 Topic.delete_all
 
 
-User.create(name: "Tom", scoresDictionary: {})
+User.create!(email: "tomfrankkirk@gmail.com", password: "password")
 shoulderTopic = Topic.create(name: "Shoulder")
 
 shoulderTopic.questions << Question.create(number: 1, level: 1, body: "Choose the right answer", solution: "Right", possibleSolutions: ["Right", "Wrong"])

@@ -1,8 +1,6 @@
-class QuestionsController < ApplicationController
+class QuestionsController < EndUserController
 
     def respond
-        @user = _findUser()
-
 
         respond_to do |format|  
 
@@ -13,8 +11,7 @@ class QuestionsController < ApplicationController
             format.html { 
                 session[:forTopic] = params[:forTopic]
                 session[:forLevel] = params[:forLevel]
-                @user.prepareQuestions(params[:forTopic], params[:forLevel])
-                render 'respond' 
+                current_user.prepareQuestions(params[:forTopic], params[:forLevel])
             } 
 
             # This is the responder for all other responses, it updates the partial on the page. 
@@ -24,17 +21,17 @@ class QuestionsController < ApplicationController
                 # If so, log the outcome of the response 
                 if qid = params[:forQuestion]
                     if (Question.find(qid)).respond(params[:userResponse])
-                        @user.incrementCurrentScore()
+                        current_user.incrementCurrentScore()
                     end
                 end
 
                 # Send the next question, if it exists
                 # If it does not exist then log final score and send off to the db.
-                if qID = @user.sendNextQuestionID()
+                if qID = current_user.sendNextQuestionID()
                     @question = Question.find(qID)
                 else
-                    # THIS needs updating, how to pass an error message around?
-                    if !(@user.hasFinishedQuestions(params[:forTopic], params[:forLevel]))  
+                    # THIS needs updating, how to pass an error message around? FLASH?
+                    if !(current_user.hasFinishedQuestions(params[:forTopic], params[:forLevel]))  
                         errorMessage = "Warning, could not save scores for previous level"
                     else 
                         errorMessage = nil 
@@ -43,13 +40,5 @@ class QuestionsController < ApplicationController
                 end
              }  
         end
-
     end
-
-    private 
-    
-    def _findUser()
-        return User.find(session[:userID])
-    end
-
 end

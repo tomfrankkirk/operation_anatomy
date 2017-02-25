@@ -1,17 +1,17 @@
 Rails.application.routes.draw do
 
-  # the root of the app -> straight to all questions 
-  root 'users#index'
+  devise_for :users
+  # the root of the app -> straight to all users.  
+  root 'topics#index'
 
   # custom routes
-  get '/respond', to: 'questions#respond'
-  get    '/login',   to: 'sessions#new'
-  post   '/login',   to: 'sessions#create'
-  delete '/logout',  to: 'sessions#destroy'
-  get    '/questions', to: 'questions#respond'
-  post   '/questions', to: 'questions#respond'
+  get    '/questions',  to: 'questions#respond'
+  post   '/questions',  to: 'questions#respond'
+  get    '/topics',     to: 'topics#index'
+  get    '/topics/:id', to: 'topics#show', as: 'topic'
+  get    '/teaching',   to: 'teaching#show'
 
   #automatic routes go here
-  resources :topics
+  # resources :topics
 
 end

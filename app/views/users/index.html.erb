@@ -1,6 +1,0 @@
-<h1>Listing users</h1>
- 
-  <% @users.each do |usr| %>
-      <td><%= usr.name %></td>
-      <td><%= link_to 'Login', controller: 'sessions', action: 'create', userID: usr.id %></td>
-  <% end %>
