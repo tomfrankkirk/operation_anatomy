@@ -5,15 +5,12 @@ Rails.application.routes.draw do
   root 'topics#index'
 
   # custom routes
+  get    '/teaching',             to: 'teaching#show'
+  get    '/images/:id',           to: 'teaching#fetchImage'
+  get    '/teaching/define',      to: 'teaching#define'
   post   '/questions',            to: 'questions#respond'
   get    '/questions',            to: 'questions#respond'
   get    '/topics',               to: 'topics#index'
   get    '/topics/:id',           to: 'topics#show', as: 'topic'
-  get    '/teaching',             to: 'teaching#show'
-  get    '/teaching/:id/:id',     to: 'teaching#assetRequest'
-  get    '/teaching/define',      to: 'teaching#define'
-
-  # automatic routes go here
-
 
 end

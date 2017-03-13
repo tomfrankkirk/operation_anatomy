@@ -1,8 +1,10 @@
 class TeachingController < EndUserController
 
-    def assetRequest
-        pathStr = 'teaching/*/' + params[:id] + '.' + params[:format]
-        path = Dir[pathStr]
+    def fetchImage
+        fullPathString = expandImagePath(params[:id]) 
+        path = Dir[fullPathString + ".*"]
+        puts path 
+        puts 
         img = File.open(path.first)
         send_data(img.read)
         img.close
@@ -44,7 +46,7 @@ class TeachingController < EndUserController
                 if string = params[:searchString]
                     entry = DictionaryEntry.searchForEntry(string)
                     if entry 
-                        render :json => { :definition => entry.definition, :title => entry.title, :example => entry.example }
+                        render :json => { :definition => entry.definition, :title => entry.title, :example => entry.example.downcase }
                         return 
                     end 
                 end 
@@ -57,7 +59,7 @@ class TeachingController < EndUserController
 
     private
     def teachingPagePaths(forTopicName, forLevel)
-        pathStr = 'teaching/' + forTopicName + '/' + forTopicName + 'L' + forLevel.to_s + '*'
+        pathStr = 'teaching/' + forTopicName + '/L' + forLevel.to_s + '/' + forTopicName + 'L' + forLevel.to_s + '*'
         paths = Dir[pathStr]
         if paths == []
             return nil 
@@ -65,5 +67,13 @@ class TeachingController < EndUserController
             return paths 
         end
     end
-    
+
+    def expandImagePath(imageName)
+        imageName = imageName.sub('/images/', '')
+        topic = imageName.slice(0, imageName.index('L')) 
+        level = imageName.slice((imageName.index('L') + 1) .. (imageName.index('P' ) - 1) ) 
+        part = imageName.slice((imageName.index('P') + 1) .. (imageName.index('Image') - 1) )
+        path = 'teaching/' + topic + '/L' + level + '/images/' + imageName
+        return path 
+    end 
 end
