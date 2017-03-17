@@ -3,8 +3,6 @@ class TeachingController < EndUserController
     def fetchImage
         fullPathString = expandImagePath(params[:id]) 
         path = Dir[fullPathString + ".*"]
-        puts path 
-        puts 
         img = File.open(path.first)
         send_data(img.read)
         img.close
@@ -13,9 +11,10 @@ class TeachingController < EndUserController
     def show
         @topic = Topic.find(params[:forTopic])
         name = @topic.name 
+        @level = params[:forLevel]
 
         # Attempt to get the paths for this topic and level. Returns nil if files not found. 
-        @paths = teachingPagePaths(name, params[:forLevel])
+        @paths = teachingPagePaths(name, @level)
 
         respond_to do |format| 
 
