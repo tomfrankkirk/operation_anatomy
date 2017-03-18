@@ -1,10 +1,8 @@
-<h1> <%= @topic.name %> </h1>
+<h1> <%= @topic.display_name %> </h1>
 
 <table>
   <tr>
-    <th>Level</th>
-    <th></th>
-    <th>Previous high score</th>
+    <th>Level</th>    <th></th>    <th>Previous high score</th>
   </tr>
 
   <% maxLevel = current_user.checkLevelAccess(@topic.id) %>
