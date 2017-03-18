@@ -4,6 +4,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
 
+  has_many :feedback_records      
   serialize :questionIDs, Array
   ScoreRecord = Struct.new(:score, :date)
       
@@ -121,7 +122,7 @@ class User < ApplicationRecord
   end
 
   # Check the highest level the user should have access to for a particular topic. 
-
+  # Pass in the topic ID, not the topic name!
   def checkLevelAccess(forTopic)
       topic = forTopic.to_s
 

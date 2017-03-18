@@ -12,5 +12,7 @@ Rails.application.routes.draw do
   get    '/questions',            to: 'questions#respond'
   get    '/topics',               to: 'topics#index'
   get    '/topics/:id',           to: 'topics#show', as: 'topic'
+  get    '/dictionary_entries',   to: 'dictionary_entries#index'
+  post   '/feedback',             to: 'users#submitFeedback'
 
 end
