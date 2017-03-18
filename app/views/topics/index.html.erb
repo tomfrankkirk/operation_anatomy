@@ -3,13 +3,13 @@
 <table>
   <tr>
     <th>Name</th>
-    <th>Number of levels</th>
+    <th>Progress</th>
   </tr>
  
   <% @topics.each do |t| %>
     <tr>
-      <td><%= t.name %></td>
-      <td><%= t.numberOfLevels %></td>
+      <td><%= t.display_name %></td>
+      <td><%= "#{current_user.checkLevelAccess(t.id) - 1} / #{t.numberOfLevels}" %></td>
       <td><%= link_to 'Show', topic_path(t) %></td>
     </tr>
   <% end %>

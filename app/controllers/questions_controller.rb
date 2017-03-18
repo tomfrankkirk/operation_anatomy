@@ -1,7 +1,6 @@
 class QuestionsController < EndUserController
 
     def respond
-
         respond_to do |format|  
 
             # This is the first responder for the topic level. 
