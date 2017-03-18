@@ -1,0 +1,16 @@
+<h1>Anatomical dictionary</h1>
+
+<h2> Did you know? </h2>
+When on a teaching page, any of the words below can be defined simply by highlighting them.  Try it on "aorta" in the passage below. 
+<p onmouseup=define()>
+The aorta is the largest diameter vessel in the human body. 
+</p>
+
+<br>
+
+<table>
+<tr><th>Entry</th> <th>Definition</th> <th>Example</th></tr>
+<% @entries.each do |e| %>
+    <tr><td> <%= e.title %> </td> <td><%= e.definition %></td> <td><%= e.example %></td></tr>
+<% end %>
+</table>
