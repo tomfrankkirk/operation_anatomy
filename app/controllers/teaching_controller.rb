@@ -45,7 +45,7 @@ class TeachingController < EndUserController
                 if string = params[:searchString]
                     entry = DictionaryEntry.searchForEntry(string)
                     if entry 
-                        render :json => { :definition => entry.definition.capitalize, :title => entry.title.capitalize, :example => entry.example.downcase }
+                        render :json => { :definition => entry.definition.downcase, :title => entry.title.capitalize, :example => entry.example.downcase }
                         return 
                     end 
                 end 
@@ -57,6 +57,7 @@ class TeachingController < EndUserController
     end
 
     private
+
     def teachingPagePaths(forTopicName, forLevel)
         pathStr = 'teaching/' + forTopicName + '/L' + forLevel.to_s + '/' + forTopicName + 'L' + forLevel.to_s + '*'
         paths = Dir[pathStr]
