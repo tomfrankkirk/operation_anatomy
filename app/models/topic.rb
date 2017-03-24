@@ -1,4 +1,5 @@
 class Topic < ApplicationRecord
+    serialize :level_names, Array
     has_many :questions, dependent: :destroy
 
     # Method to fetch shuffled array for all questions of a certain level within a topic. 
@@ -24,8 +25,22 @@ class Topic < ApplicationRecord
         self.questions.maximum("level")
     end
 
-    def sayHello()
-        puts sayHello
-    end
-    
+    # Go hunting for the level names as a text file. If found, wipe the current ones
+    # and then put in the latest ones. 
+    def loadLevelNames
+        path = Dir["teaching/#{self.name}/LevelNames.txt"]
+        puts path
+        if path
+            self.level_names = []
+            File.open(path.first) { |f|
+                lines = f.read
+                lines = lines.split("\n")
+                lines.each do |name|
+                    self.level_names << name 
+                end 
+            }
+            self.save
+        end
+    end     
+
 end
