@@ -13,6 +13,11 @@ Question.delete_all
 # Seeding topics now. 
 shoulderTopic = Topic.create(name: "Shoulder", display_name: "The Shoulder Joint")
 
+# Load the level names in. Each topic directory should have a document named LevelNames.txt at the top level. 
+Topics.all.each do |t|
+    t.loadLevelNames
+end
+
 # Seeding questions
 File.open(Dir['teaching/questionSeed.rb'].first) { |file| load(file) }
 
