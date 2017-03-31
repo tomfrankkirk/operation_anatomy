@@ -6,8 +6,7 @@ class User < ApplicationRecord
 
   has_many :feedback_records      
   serialize :questionIDs, Array
-  ScoreRecord = Struct.new(:score, :date)
-      
+   
   # Prepare an array of question IDs (selected from topic and level) for the User
   # to respond to. The array will then be stored in the database (as a column on 
   # the User table), IDs can then be retrieved individually by the user as required. 
@@ -64,10 +63,15 @@ class User < ApplicationRecord
       end
   end
 
+  # SCORE RECORD METHODS
+
   # Write in level scores to the scoresDictionary. 
   # Generally, forTopic and forLevel are passed in as strings (although they are
   # active record ids, eg "1" instead of 1), so convert level to an int and topic
   # to a string. ScoreRecord is a struct to store a score-date pair. 
+
+  ScoreRecord = Struct.new(:score, :date)
+  Threshold = 65
   
   def updateLevelScore(forTopic, forLevel, score)
       level = (forLevel.to_s).to_i
@@ -112,7 +116,7 @@ class User < ApplicationRecord
       # level has actually been attempted
       if topicHash = self.scoresDictionary[topic]
           if level <= (topicHash.count)
-              return topicHash[level - 1].last
+              return topicHash[level - 1].max_by { |date, score| score }
           else
               return nil 
           end
@@ -132,7 +136,7 @@ class User < ApplicationRecord
       # Right now this goes on their most recent score - check for any score above
       # A new hash to score level access flags separately to scores in general?
       if existingTopicHash = scoresDictionary[topic]
-          if ( ((existingTopicHash).last).any? { |record| record["score"] >= 65 } ) 
+          if ( ((existingTopicHash).last).any? { |record| record["score"] >= Threshold } ) 
               return existingTopicHash.count + 1
           else 
               return existingTopicHash.count
