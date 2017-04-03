@@ -6,15 +6,15 @@ if User.all == []
     User.create!(email: "tomfrankkirk@gmail.com", password: "password")
 end
 
-# Delete all topics to reseed them
-Topic.delete_all
+# Delete all questions to reseed them
+# Don't delete topics - we need to keep this to keep the ids. 
 Question.delete_all
 
 # Seeding topics now. 
 shoulderTopic = Topic.create(name: "Shoulder", display_name: "The Shoulder Joint")
 
 # Load the level names in. Each topic directory should have a document named LevelNames.txt at the top level. 
-Topics.all.each do |t|
+Topic.all.each do |t|
     t.loadLevelNames
 end
 
