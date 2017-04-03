@@ -63,121 +63,87 @@ class User < ApplicationRecord
       end
   end
 
-    # SCORE RECORD METHODS
+  # SCORE RECORD METHODS
 
-    # Write in level scores to the scoresDictionary. 
-    # Generally, forTopic and forLevel are passed in as strings (although they are
-    # active record ids, eg "1" instead of 1), so convert level to an int and topic
-    # to a string. ScoreRecord is a struct to store a score-date pair. 
+  # Write in level scores to the scoresDictionary. 
+  # Generally, forTopic and forLevel are passed in as strings (although they are
+  # active record ids, eg "1" instead of 1), so convert level to an int and topic
+  # to a string. ScoreRecord is a struct to store a score-date pair. 
 
-    ScoreRecord = Struct.new(:score, :date)
-    Threshold = 65
+  ScoreRecord = Struct.new(:score, :date)
+  Threshold = 65
+  
+  def updateLevelScore(forTopic, forLevel, score)
+      level = (forLevel.to_s).to_i
+      topic = forTopic.to_s
+      scoreRecord = ScoreRecord.new(score, Time.now.strftime("%d/%m/%Y"))
 
-    def updateLevelScore(forTopic, forLevel, score)
-        topicName = Topic.find(forTopic).name
-        level = (forLevel.to_s).to_i
-        scoreRecord = ScoreRecord.new(score, Time.now.strftime("%d/%m/%Y"))
+      # Check if the hash for this topic already exists
+      # If so write the score in using the level as a numeric index into the array
+      # This is good because hashes can return nils whereas arrays cannot. 
+      if existingTopicHash = self.scoresDictionary[topic]
+          if level <= (existingTopicHash.count)
+              existingTopicHash[level - 1].append(scoreRecord)
+          elsif level == existingTopicHash.count + 1
+              existingTopicHash.append([scoreRecord])
+          else
+              puts "Warning: could not add score for #{self.id}, requested level #{forLevel} and topic #{forTopic}."
+              puts "Current length of score array for topic #{forTopic} is #{existingTopicHash.count}."
+              puts "Score not recorded."
+              return false
+          end
+      else
+          # no hash -> this must be level one for the topic, so generate new array. 
+          self.scoresDictionary[topic] = [[scoreRecord]]
+      end
+      return true
+  end
 
-        # Check if the hash for this topic already exists
-        # If so write the score in using the level as a numeric index into the array
-        if existingTopicHash = self.scoresDictionary[topicName]
-            if level <= (existingTopicHash.count)
-                existingTopicHash[level - 1].append(scoreRecord)
-            elsif level == existingTopicHash.count + 1
-                existingTopicHash.append([scoreRecord])
-            else
-                puts "Warning: could not add score for #{self.id}, requested level #{forLevel} and topic #{forTopic}."
-                puts "Current length of score array for topic #{forTopic} is #{existingTopicHash.count}."
-                puts "Score not recorded."
-                return false
-            end
-        else
-            # No hash: this must be level one for the topic, so generate new array.
-            # Add the dummy 100% score record for level 0 in 
-            dummy = ScoreRecord.new(score, "NULL")
-            self.scoresDictionary[topicName] = [[dummy], [scoreRecord]]
-        end
-        return true
-    end
+  # Get score-date object. Check that the topic hash does actually exist before
+  # attempting to access it. If not return nil. Again make sure the inputs are in the right form. 
 
-    # Get score-date object. Check that the topic hash does actually exist before
-    # attempting to access it. If not return nil. Again make sure the inputs are in the right form. 
+  def getLevelScore(forTopic, forLevel)
+      level = (forLevel.to_s).to_i
+      topic = forTopic.to_s
 
-    def getLevelScore(forTopic, forLevel)
-        topicName = Topic.find(forTopic).name
-        level = (forLevel.to_s).to_i
+      # Check for dodgy inputs. 
+      if level <= 0
+          puts "Warning: 0 or lower level requested for getScore on topic #{level} user #{self.id} object. Nil returned"
+          return nil 
+      end
 
-        # Check for dodgy inputs. 
-        if level <= 0
-            puts "Warning: 0 or lower level requested for getScore on topic #{level} user #{self.id} object. Nil returned"
-            return nil 
-        end
+      # Nonnegative inputs - check that the topic hash exists and if so check that the 
+      # level has actually been attempted
+      if topicHash = self.scoresDictionary[topic]
+          if level <= (topicHash.count)
+              return topicHash[level - 1].max_by { |date, score| score }
+          else
+              return nil 
+          end
+      else
+          return nil 
+      end
+  end
 
-        # Nonnegative inputs - check that the topic hash exists and if so check that the 
-        # level has actually been attempted
-        if topicHash = self.scoresDictionary[topicName]
-            if level <= (topicHash.count)
-                return topicHash[level - 1].max_by { |date, score| score }
-            else
-                return nil 
-            end
-        else
-            return nil 
-        end
-    end
+  # Check the highest level the user should have access to for a particular topic. 
+  # Pass in the topic ID, not the topic name!
+  def checkLevelAccess(forTopic)
+      topic = forTopic.to_s
 
-    # Check the highest level questions the user should have access to for a particular topic. 
-    # Pass in the topic ID, not the topic name!
-    def checkLevelAccess(forTopic)
-        topicName = Topic.find(forTopic).name
-
-        # Check what level they have viewed up to first
-        maxView = self.getHighestViewedLevel(forTopic)
-
-        # If the most recent score is greater than the threshold, then give access to the next level
-        # If not, give access to the level that they are currently working on (and have not yet managed
-        # to get above threshold for -> this is simply the count of scores in the topic hash)
-        if existingTopicHash = scoresDictionary[topicName]
-            if ( ((existingTopicHash).last).any? { |record| record["score"] >= Threshold } ) 
-                return [existingTopicHash.count + 1, maxView].min
-            else 
-                return [existingTopicHash.count, maxView].min
-            end
-        else
-            # Topic has not previously been attempted. 
-            return [2, maxView].min
-        end 
-    
-    end
-
-    # LEVEL VIEW METHODS
-
-    # These methods are used to ensure that the user has actually read things before attempting questions. 
-    def setLevelViewed(forTopic, forLevel)
-        topicName = Topic.find(forTopic).name
-        level = forLevel.to_s 
-        if existingHash = levelViewsDictionary[topicName]
-            existingHash[level] = true 
-        else 
-            levelViewsDictionary[topicName] = {level => true}
-        end 
-        self.save
-    end 
-
-    def getHighestViewedLevel(forTopic)
-        topicName = Topic.find(forTopic).name
-
-        # If hash exists all good, otherwise return 0 (user should be allowed to read level 1)
-        if existingHash = levelViewsDictionary[topicName]
-            if existingHash == {}
-                return 0
-            else 
-                maxLevel = existingHash.max_by { |level, bool| level.to_i }
-                return maxLevel[0].to_i 
-            end 
-        else 
-            return 0
-        end 
-    end 
-
+      # If the most recent score is greater than the threshold, then give access to the next level
+      # If not, give access to the level that they are currently working on (and have not yet managed
+      # to get above threshold for -> this is simply the count of scores in the topic hash)
+      # Right now this goes on their most recent score - check for any score above
+      # A new hash to score level access flags separately to scores in general?
+      if existingTopicHash = scoresDictionary[topic]
+          if ( ((existingTopicHash).last).any? { |record| record["score"] >= Threshold } ) 
+              return existingTopicHash.count + 1
+          else 
+              return existingTopicHash.count
+          end
+      else
+          # Topic has not previously been attempted, return 1
+          return 1
+      end 
+  end
 end
