@@ -16,10 +16,10 @@
 
 
 body {
-    background-color: lightsteelblue; 
     text-align: center;
     text-align: justify;
     font-family: Roboto;
+    margin-top: 60px; 
 }
 
 .centered {
@@ -29,7 +29,12 @@ body {
 }
 
 .navbar {
-    background-color: cadetblue; 
+    background-color: lightblue; 
+    top: 0;
+    left: 0; 
+    right: 0; 
+    position: absolute; 
+    padding-right: 5px;
 }
 
 p.navbar-text { 
@@ -98,6 +103,21 @@ div.feedbackFormContent {
 
 textarea {
     width: 98%; 
+}
+
+div.feedbackLink {
+    /*height: 100px; 
+    width:100%;
+    position: absolute;
+    left: 0;
+    bottom: 0; */
+
+    /*position: fixed; 
+    bottom: 0;
+    width: 100%;
+    background-color: white; 
+    border: 1px solid #888; 
+    padding: 5px; */
 }
 
 
