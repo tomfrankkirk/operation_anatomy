@@ -8,13 +8,14 @@ class TeachingController < EndUserController
         img.close
     end
 
+    # This method updates teaching page partials via JS ajax requests. 
+    # It is also responsible for setting "level viewed" flags when the user reaches end of level 
     def show
-        @topic = Topic.find(params[:forTopic])
-        name = @topic.name 
+        @topic = Topic.find(params[:forTopic]) 
         @level = params[:forLevel]
 
         # Attempt to get the paths for this topic and level. Returns nil if files not found. 
-        @paths = teachingPagePaths(name, @level)
+        @paths = teachingPagePaths(@topic.name, @level)
 
         respond_to do |format| 
 
@@ -24,6 +25,9 @@ class TeachingController < EndUserController
             format.html {
                 if @paths
                     @currentPart = 0
+                    if @currentPart + 1 == @paths.count
+                        current_user.setLevelViewed(@topic.id, @level)
+                    end 
                 else 
                     # If unsuccessful then render the error message
                     render 'error'
@@ -32,7 +36,11 @@ class TeachingController < EndUserController
 
             # Simply increment or decrement currentPart and re-load. 
             format.js {
-                @currentPart = (params[:currentPart]).to_i        
+                @currentPart = (params[:currentPart]).to_i     
+                # Check if this is the end of the level, if so set flag on user object. 
+                if @currentPart.to_i + 1 == @paths.count 
+                    current_user.setLevelViewed(@topic.id, @level)
+                end 
             }
         end
     end

@@ -7,10 +7,17 @@ class QuestionsController < EndUserController
             # Take the level into the sessions cookie for later. 
             # Prepare the questions on the user object and then
             # send the first one. 
-            format.html { 
-                session[:forTopic] = params[:forTopic]
-                session[:forLevel] = params[:forLevel]
-                current_user.prepareQuestions(params[:forTopic], params[:forLevel])
+            format.html {  
+                if t = Topic.find(params[:forTopic].to_i) 
+                    @name = t.display_name 
+                    @levelName = t.level_names[params[:forLevel].to_i - 1]
+                    session[:forTopic] = params[:forTopic]
+                    session[:forLevel] = params[:forLevel]
+                    current_user.prepareQuestions(params[:forTopic], params[:forLevel])
+                else 
+                    # Didn't find the topic for some reason. Flash error?
+                    render "error"
+                end 
             } 
 
             # This is the responder for all other responses, it updates the partial on the page. 
