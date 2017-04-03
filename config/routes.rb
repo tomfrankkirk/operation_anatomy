@@ -1,8 +1,10 @@
 Rails.application.routes.draw do
-
-  devise_for :users
+  
   # the root of the app -> straight to all topics
-  root 'topics#index'
+  root "topics#index"
+
+  # devise routes
+  devise_for :users
 
   # custom routes
   get    '/teaching',             to: 'teaching#show'
