@@ -41,6 +41,14 @@ class Topic < ApplicationRecord
             }
             self.save
         end
-    end     
+    end
+
+    def levelName(forLevel)
+        if name = self.level_names[forLevel-1]
+            return name 
+        else
+            return "Level #{forLevel}"
+        end 
+    end 
 
 end

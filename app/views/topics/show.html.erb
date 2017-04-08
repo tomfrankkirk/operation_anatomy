@@ -3,42 +3,70 @@
 <table>
   <tr>
     <th>Level</th>    <th></th> <th></th>   <th>Previous high score</th>
+        <% if @admin %>
+          <th> Admin teaching access </th>
+          <th> Admin level access </th>
+        <% end %>
   </tr>
 
   <% maxLevel = current_user.checkLevelAccess(@topic.id) %>
   <% highestViewed = current_user.getHighestViewedLevel(@topic.id) %>
-  <%#<% byebug %>
+  <%= "Revision mode: #{@revisionMode}" %>
  
   <% for i in 1..@topic.numberOfLevels %>
     <tr>
 
-      <!-- Level names go here -->
-      <td><% if name = @topic.level_names[i-1] %>
-        <%= i.to_s + " " + name %>
-      <% else %>
-        <%= "Level #{i}" %> 
-      <% end %></td>
+      <!-- Normal mode links here (not revision) -->
+        <% if !@revisionMode %>
+        <!-- Level names go here -->
+        <td><%= topic.levelName(i) %></td>
 
-      <!-- Link to teaching pages goes here -->
-      <td><% if i <= highestViewed + 1 %>
+        <!-- Link to teaching pages goes here -->
+        <td><% if i <= highestViewed + 1 %>
+          <%= link_to 'Teaching', controller: 'teaching', action: 'show', forTopic: @topic.id, forLevel: i %>
+        <% else %>
+          <small><i> Locked </i></small>
+        <% end %></td>
+        
+        <!-- Questions here, NB we do not want a questions link for level 1 because it is introduction -->
+        <td><% if i <= maxLevel && i != 1 %>
+          <%= link_to 'Questions', controller: 'questions', action: 'respond', forLevel: i, forTopic: @topic.id  %>
+        <% elsif i != 1 %>
+          <small><i> Locked </i></small>
+        <% end %></td>
+
+        <!-- If a score exists present it -->
+        <td><% if scoreRecord = current_user.getLevelScore(@topic.id, i) %>
+          <% if i != 1 %>
+            <%= "#{scoreRecord["score"]}% on  #{scoreRecord["date"]}" %>
+          <% end %>
+        <% end %></td>
+
+      <!-- Revision mode liks here. -->  
+      <% else %>
+        <!-- Level names go here -->
+        <td><%= topic.levelName(i) %></td>
+
+        <!-- Link to teaching pages goes here -->
+        <td>
         <%= link_to 'Teaching', controller: 'teaching', action: 'show', forTopic: @topic.id, forLevel: i %>
-      <% else %>
-        <small><i> Locked </i></small>
-      <% end %></td>
-      
-      <!-- Questions here, NB we do not want a questions link for level 1 because it is introduction -->
-      <td><% if i <= maxLevel && i != 1 %>
-        <%= link_to 'Questions', controller: 'questions', action: 'respond', forLevel: i, forTopic: @topic.id  %>
-      <% elsif i != 1 %>
-         <small><i> Locked </i></small>
-      <% end %></td>
+        </td>
 
-      <!-- If a score exists present it -->
-      <td><% if scoreRecord = current_user.getLevelScore(@topic.id, i) %>
-        <% if i != 1 %>
-          <%= "#{scoreRecord["score"]}% on  #{scoreRecord["date"]}" %>
-        <% end %>
-      <% end %></td>
+        <!-- Questions here, NB we do not want a questions link for level 1 because it is introduction -->
+        <td>
+        <%= link_to 'Questions', controller: 'questions', action: 'respond', forLevel: i, forTopic: @topic.id  %>
+        </td>
+
+        <!-- No scores presented in revision mode -->
+        <td></td>
+
+      <% end %>
+
+      <!-- If admin present the extra links to access all teaching/leves (separate to revision mode) -->
+      <% if @admin %>
+        <td><%= link_to 'Teaching', controller: 'teaching', action: 'show', forTopic: @topic.id, forLevel: i %></td>
+        <td><%= link_to 'Questions', controller: 'questions', action: 'respond', forLevel: i, forTopic: @topic.id %></td>
+      <% end %>
       
     </tr>
   <% end %>
