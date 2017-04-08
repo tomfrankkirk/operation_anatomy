@@ -2,11 +2,12 @@
 
 <div class= "QuestionSolutionArea">
 
-Sol: <%= @question.solution %> <br><br>
+<% if @admin %>
+    Administrator solution: <%= @question.solution %>
+<% end %> 
+<br><br>
 
-<% @question.possibleSolutions.each do |sol| %>
-
+<% @question.shuffledSolutions.each do |sol| %>
     <%= link_to sol, { remote: true, userResponse: sol, forQuestion: @question.id, forTopic: session[:forTopic], forLevel: session[:forLevel] }, :class => "questionSolution" %><br>
-
 <% end %>
 </div>

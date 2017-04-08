@@ -22,9 +22,9 @@ class User < ApplicationRecord
   end
 
   def sendNextQuestionID()
-      @next = self.questionIDs.pop
+      nextq = self.questionIDs.pop
       self.save
-      return @next
+      return nextq
   end
 
   # A simple integer field that is used to record scores whilst a level is in progress. 
@@ -48,12 +48,13 @@ class User < ApplicationRecord
 
   def hasFinishedQuestions(forTopic, forLevel)
       if forTopic && forLevel
-          noError = true
           score = 100 * (self.currentScore) / (Topic.find(forTopic).numberOfQuestionsInLevel(forLevel))
-          if !(self.updateLevelScore(forTopic, forLevel, score))
-              puts "Warning: did not manage to save score"
-              noError = false
-          end
+          # Check not in revision mode (to save score)
+          if !self.revisionMode
+            if !(self.updateLevelScore(forTopic, forLevel, score))
+                puts "Warning: did not manage to save score"
+            end 
+          end   
           self.wipeCurrentScore
           self.save
           return false 
@@ -73,9 +74,10 @@ class User < ApplicationRecord
     ScoreRecord = Struct.new(:score, :date)
     Threshold = 65
 
+    # Update this to go with proper hashes!
     def updateLevelScore(forTopic, forLevel, score)
         topicName = Topic.find(forTopic).name
-        level = (forLevel.to_s).to_i
+        level = forLevel.to_s.to_i
         scoreRecord = ScoreRecord.new(score, Time.now.strftime("%d/%m/%Y"))
 
         # Check if the hash for this topic already exists
