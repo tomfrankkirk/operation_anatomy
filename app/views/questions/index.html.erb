@@ -1,0 +1,18 @@
+<h2> Questions index </h2>
+
+<table>
+   <tr>
+      <th> Question ID </th>
+      <th> Body </th>
+      <th> Solutions </th>
+   </tr>
+
+   <% @questions.each do |q| %>
+   <tr>
+      <td><%= q.qID %></td>
+      <td><%= q.body %></td>
+      <td><%= q.possibleSolutions %></td>
+   </tr>
+   <tr></tr>
+   <% end %>
+</table>

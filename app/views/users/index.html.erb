@@ -1,0 +1,19 @@
+<h2> Users </h2>
+
+<table>
+   <tr>
+   <th>User ID</th>
+   <th>User email</th>
+   </tr>
+
+   <% @users.each do |u| %>
+      <tr>
+      <td><%= u.id %></td>
+      <td><%= u.email %></td>
+      <td><%= link_to "Show", controller: "users", action: "show", id: u.id %>
+      </tr>
+   <% end %>
+</table>
+
+
+   

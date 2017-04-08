@@ -1,7 +1,20 @@
 class QuestionsController < EndUserController
 
+    # Index action is available only to administrators, otherwise will redirect. 
+    def index 
+        if current_user.isAdmin
+            @questions = Question.all
+        else 
+            # flash[:error] = "Sorry, this action is only available to administrators."
+            redirect_to "/questions_index"
+            byebug
+        end 
+    end 
+
     def respond
         respond_to do |format|  
+            # Admin user or not?
+            @admin = current_user.isAdmin
 
             # This is the first responder for the topic level. 
             # Take the level into the sessions cookie for later. 

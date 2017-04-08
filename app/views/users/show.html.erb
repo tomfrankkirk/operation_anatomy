@@ -1,1 +1,30 @@
-<%= link_to 'Edit profile', edit_user_registration_path, :class => 'navbar-link' %>
+<h2> User profile: <%= @user.email %> </h2>
+
+<p>ID: <%= @user.id %></p>
+<p>Created at: <%= @user.created_at %></p>
+<p>Modified at: <%= @user.updated_at %></p>
+
+<h3>User access and score records:</h3>
+
+<table>
+   <% @topics.each do |t| %>
+      <% levelView = @user.getHighestViewedLevel(t.id) %>
+
+      <!-- Header: topic name, highest viewed level, level access -->
+      <tr><td><b><%= t.name %></b></td>
+      <td>Highest viewed level:  <%= levelView %></td>
+      <td>Level access: <%= @user.checkLevelAccess(t) %></td></tr>
+
+      <!-- For each level in the topic, print the max score and level has been read flag -->
+         <% (1..t.numberOfLevels).each do |l| %>
+            <tr> 
+            <td> <%= t.levelName(l) %> </td>
+            <td> <% if l < levelView %> <%= "True" %> <% end %>        
+            <td><%= @user.getLevelScore(t.id, l) %></td>
+            </tr>
+
+         <% end %>
+
+   <% end %>
+<table>
+      

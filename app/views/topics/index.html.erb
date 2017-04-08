@@ -14,3 +14,10 @@
     </tr>
   <% end %>
 </table>
+
+<br>
+
+<% if @admin %>
+  <%= link_to "Questions index", controller: "questions", action: "index" %>
+  <%= link_to "Users index", controller: "users", action: "index" %>
+<% end %>
