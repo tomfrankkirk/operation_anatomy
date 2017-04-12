@@ -16,7 +16,6 @@ class TeachingController < EndUserController
 
         # Attempt to get the paths for this topic and level. Returns nil if files not found. 
         @paths = teachingPagePaths(@topic.name, @level)
-
         respond_to do |format| 
 
             # First page load. Set currentPart = 0 and pass all paths off to the view to render. 
@@ -26,7 +25,7 @@ class TeachingController < EndUserController
                 if @paths
                     @currentPart = 0
                     if @currentPart + 1 == @paths.count
-                        current_user.setLevelViewed(@topic.id, @level)
+                        current_user.setLevelViewed(@topic.name, @level)
                     end 
                 else 
                     # If unsuccessful then render the error message
@@ -39,7 +38,7 @@ class TeachingController < EndUserController
                 @currentPart = (params[:currentPart]).to_i     
                 # Check if this is the end of the level, if so set flag on user object. 
                 if @currentPart.to_i + 1 == @paths.count 
-                    current_user.setLevelViewed(@topic.id, @level)
+                    current_user.setLevelViewed(@topic.name, @level)
                 end 
             }
         end
@@ -84,4 +83,5 @@ class TeachingController < EndUserController
         path = 'teaching/' + topic + '/L' + level + '/images/' + imageName
         return path 
     end 
+
 end
