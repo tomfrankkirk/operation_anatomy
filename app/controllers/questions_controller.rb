@@ -7,7 +7,6 @@ class QuestionsController < EndUserController
         else 
             # flash[:error] = "Sorry, this action is only available to administrators."
             redirect_to "/questions_index"
-            byebug
         end 
     end 
 
