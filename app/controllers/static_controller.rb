@@ -11,7 +11,8 @@ class StaticController < ApplicationController
     end
 
     def bugs 
-        @bugs = FeedbackRecord.find_by("tone", "bug")
+        @bugs = FeedbackRecord.where("tone = ?", "Bug")
+        @bugs = @bugs.order(:created_at)
     end 
 
     def tech

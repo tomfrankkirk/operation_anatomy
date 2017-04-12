@@ -26,6 +26,9 @@ class UsersController < EndUserController
 					comment = params[:comment]
 					record = FeedbackRecord.new(tone: tone, comment: comment)
 					record.user_id = userID
+					if tone = "Bug"
+						record.solved = false
+					end 
 					record.save 
 					render :json => {:success => true}
 				end 

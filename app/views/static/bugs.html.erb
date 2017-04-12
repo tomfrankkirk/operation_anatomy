@@ -1,0 +1,24 @@
+<h2>Bugs</h2>
+
+<table>
+   <tr>
+   <th>ID</th>
+   <th>Date</th>
+   <th>Comment</th>
+   <th>Solved?</th>
+   </tr>
+
+   <% @bugs.each do |b| %>
+      <tr>
+      <td><%= b.id %></td>
+      <td><%= b.created_at %></td>
+      <td><%= b.comment %></td>   
+      <% if current_user.isAdmin %>
+         <td> Check box </td>
+      <% else %>
+         <td><%= b.solved %></td>
+      <% end %>
+      </tr>
+   <% end %>
+
+</table>

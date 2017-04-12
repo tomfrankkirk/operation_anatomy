@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   
   # the root of the app -> straight to all topics
-  root "topics#index"
+  root "static#about"
 
   # devise routes
   devise_for :users
@@ -19,5 +19,6 @@ Rails.application.routes.draw do
   get    '/questions_index',      to: 'questions#index'
   get    '/users',                to: 'users#index'
   get    '/users/:id',            to: 'users#show', as: 'user'
+  get    '/static/bugs',          to: 'static#bugs'
 
 end
