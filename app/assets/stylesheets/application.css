@@ -14,7 +14,6 @@
  *= require_self
  */
 
-
 body {
     text-align: center;
     text-align: justify;
@@ -33,12 +32,24 @@ body {
     top: 0;
     left: 0; 
     right: 0; 
+    height: 50px; 
     position: absolute; 
-    padding-right: 5px;
+    padding: 0px;
+    overflow: hidden; 
 }
 
-p.navbar-text { 
-    text-align: right; 
+.navbar-element {
+    display: inline-block; 
+}
+
+.navbar-element.left { 
+    margin-left: 10px;
+    float: left; 
+}
+
+.navbar-element.right {
+    margin-right: 10px; 
+    float: right; 
 }
 
 p {
