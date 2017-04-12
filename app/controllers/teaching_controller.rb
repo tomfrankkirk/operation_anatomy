@@ -63,6 +63,25 @@ class TeachingController < EndUserController
         end
     end
 
+    def webRotateXML
+        respond_to do |format|
+
+            format.xml { 
+                path = Dir["teaching/" + params[:path] + ".xml"]
+                File.open(path.first, 'r') do |f| 
+                    send_data(f.read)
+                end 
+            } 
+
+            format.jpg {
+                path = Dir["teaching/" + params[:path] + ".jpg"]
+                File.open(path.first, 'r') do |f| 
+                    send_data(f.read)
+                end 
+            }
+        end 
+    end 
+
     private
 
     def teachingPagePaths(forTopicName, forLevel)

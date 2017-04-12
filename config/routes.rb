@@ -19,6 +19,13 @@ Rails.application.routes.draw do
   get    '/questions_index',      to: 'questions#index'
   get    '/users',                to: 'users#index'
   get    '/users/:id',            to: 'users#show', as: 'user'
-  get    '/static/bugs',          to: 'static#bugs'
+  get    '/static/bugs',          to: 'static#bugs' 
+  get    '/teaching/*path',         to: 'teaching#webRotateXML'
+
+
+  # namespace :teaching do
+  #   match '*.xml' => 'teaching#webRotateXML', :via => [:get]
+  # end
+  # get    '/teaching/*.xml',       to: 'teaching#webRoateXML' 
 
 end

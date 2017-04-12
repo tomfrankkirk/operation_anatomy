@@ -13,4 +13,6 @@
 //= require jquery
 //= require jquery_ujs
 //= require turbolinks
+//= require imagerotator.js
+//= require jquery-1.8.3.min.js
 //= require_tree . 
