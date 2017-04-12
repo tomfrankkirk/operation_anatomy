@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   
   # the root of the app -> straight to all topics
-  root "static#about"
+  root "topics#index"
 
   # devise routes
   devise_for :users
@@ -21,11 +21,5 @@ Rails.application.routes.draw do
   get    '/users/:id',            to: 'users#show', as: 'user'
   get    '/static/bugs',          to: 'static#bugs' 
   get    '/teaching/*path',         to: 'teaching#webRotateXML'
-
-
-  # namespace :teaching do
-  #   match '*.xml' => 'teaching#webRotateXML', :via => [:get]
-  # end
-  # get    '/teaching/*.xml',       to: 'teaching#webRoateXML' 
 
 end
