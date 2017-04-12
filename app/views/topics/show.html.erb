@@ -1,5 +1,14 @@
 <h1> <%= @topic.display_name %> </h1>
 
+<% maxLevel = current_user.checkLevelAccess(@topic.name) %>
+<% highestViewed = current_user.getHighestViewedLevel(@topic.name) %>
+
+<% if @admin %>
+  <%= "Revision mode: #{@revisionMode}" %>
+  <%= "Highest viewed level #{highestViewed}" %>
+  <%= "Max level #{maxLevel}" %>
+<% end %>
+
 <table>
   <tr>
     <th>Level</th>    <th></th> <th></th>   <th>Previous high score</th>
@@ -8,10 +17,6 @@
           <th> Admin level access </th>
         <% end %>
   </tr>
-
-  <% maxLevel = current_user.checkLevelAccess(@topic.id) %>
-  <% highestViewed = current_user.getHighestViewedLevel(@topic.id) %>
-  <%= "Revision mode: #{@revisionMode}" %>
  
   <% for i in 1..@topic.numberOfLevels %>
     <tr>
@@ -19,7 +24,7 @@
       <!-- Normal mode links here (not revision) -->
         <% if !@revisionMode %>
         <!-- Level names go here -->
-        <td><%= topic.levelName(i) %></td>
+        <td><%= @topic.levelName(i) %></td>
 
         <!-- Link to teaching pages goes here -->
         <td><% if i <= highestViewed + 1 %>
@@ -29,14 +34,15 @@
         <% end %></td>
         
         <!-- Questions here, NB we do not want a questions link for level 1 because it is introduction -->
-        <td><% if i <= maxLevel && i != 1 %>
+        <td><% if i != 1 && i == maxLevel %>
           <%= link_to 'Questions', controller: 'questions', action: 'respond', forLevel: i, forTopic: @topic.id  %>
         <% elsif i != 1 %>
+        <%= i %>
           <small><i> Locked </i></small>
         <% end %></td>
 
         <!-- If a score exists present it -->
-        <td><% if scoreRecord = current_user.getLevelScore(@topic.id, i) %>
+        <td><% if scoreRecord = current_user.getLevelScore(@topic.name, i) %>
           <% if i != 1 %>
             <%= "#{scoreRecord["score"]}% on  #{scoreRecord["date"]}" %>
           <% end %>
@@ -45,7 +51,7 @@
       <!-- Revision mode liks here. -->  
       <% else %>
         <!-- Level names go here -->
-        <td><%= topic.levelName(i) %></td>
+        <td><%= @topic.levelName(i) %></td>
 
         <!-- Link to teaching pages goes here -->
         <td>
@@ -54,7 +60,7 @@
 
         <!-- Questions here, NB we do not want a questions link for level 1 because it is introduction -->
         <td>
-        <%= link_to 'Questions', controller: 'questions', action: 'respond', forLevel: i, forTopic: @topic.id  %>
+        <%= link_to 'Questions', controller: 'questions', action: 'respond', forLevel: i, forTopic: @topic.id %>
         </td>
 
         <!-- No scores presented in revision mode -->
