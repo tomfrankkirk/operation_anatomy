@@ -26,12 +26,20 @@
 
 <!-- Body of the page -->
   <body>
+    <!-- Devise messages here. Integrate into the flash at some point? -->
     <% if notice %>
       <p class="alert alert-success"><%= notice %></p>
     <% end %>
     <% if alert %>
       <p class="alert alert-danger"><%= alert %></p>
     <% end %>
+
+    <!-- Flash messages here -->
+    <% flash.each do |name, msg| -%>
+      <%= content_tag :div, msg, class: name %>
+    <% end -%>
+
+    <!-- Yield to the main content itself -->
     <%= yield %>
   </body>
   
