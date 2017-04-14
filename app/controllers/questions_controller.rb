@@ -10,19 +10,17 @@ class QuestionsController < EndUserController
         end 
     end 
 
+    # This handles user interactions with questions. HTML response draws the initial page, 
+    # thereafter questions are updated via a JS partial. 
     def respond
         respond_to do |format|  
-            # Admin user or not?
-            @admin = current_user.isAdmin
+            @admin = current_user.isAdmin && current_user.inAdminMode
 
-            # This is the first responder for the topic level. 
-            # Take the level into the sessions cookie for later. 
-            # Prepare the questions on the user object and then
-            # send the first one. 
+            # First response, draw the HTML page. 
             format.html {  
                 if t = Topic.find(params[:forTopic].to_i) 
                     @name = t.display_name 
-                    @levelName = t.level_names[params[:forLevel].to_i - 1]
+                    @levelName = t.levelName(params[:forLevel].to_i)
                     session[:forTopic] = params[:forTopic]
                     session[:forLevel] = params[:forLevel]
                     current_user.prepareQuestions(params[:forTopic], params[:forLevel])
@@ -48,15 +46,13 @@ class QuestionsController < EndUserController
                 if qID = current_user.sendNextQuestionID()
                     @question = Question.find(qID)
                 else
-                    # THIS needs updating, how to pass an error message around? FLASH?
                     if !(current_user.hasFinishedQuestions(params[:forTopic], params[:forLevel]))  
-                        errorMessage = "Warning, could not save scores for previous level"
-                    else 
-                        errorMessage = nil 
+                        flash[:errorMessage] = "Warning, could not save scores for previous level"
                     end
                 render :js => "window.location = 'topics/#{params[:forTopic]}'"
                 end
              }  
         end
     end
+    
 end
