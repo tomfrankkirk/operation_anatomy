@@ -55,3 +55,6 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 # Gems added by TK: 
 # for sign-in and associated functions (confirm emails etc)
 gem 'devise'
+
+# for heroku deployment
+ruby '2.4.0'
