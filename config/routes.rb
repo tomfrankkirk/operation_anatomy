@@ -20,6 +20,7 @@ Rails.application.routes.draw do
   get    '/users',                to: 'users#index'
   get    '/users/:id',            to: 'users#show', as: 'user'
   get    '/static/bugs',          to: 'static#bugs' 
-  get    '/teaching/*path',         to: 'teaching#webRotateXML'
+  get    '/teaching/*path',       to: 'teaching#webRotateXML'
+  get    '/users/adminMode/:id',  to: 'users#adminMode'
 
 end
