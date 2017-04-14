@@ -1,5 +1,6 @@
 class UsersController < EndUserController
 
+	# Admin only method. List all users. 
 	def index
 		if current_user.isAdmin
 			@users = User.all
@@ -8,6 +9,7 @@ class UsersController < EndUserController
 		end 
 	end 
 
+	# Admin only method. Show detailed info about a user. 
 	def show
 		if current_user.isAdmin
 			@user = User.find(params[:id])
@@ -17,6 +19,7 @@ class UsersController < EndUserController
 		end 
 	end 
 
+	# Logs a feedback record into the db under the users id. Remote method. 
 	def submitFeedback()
 		respond_to do |format|
 			format.js {
@@ -35,5 +38,24 @@ class UsersController < EndUserController
 			}
 		end
 	end
+
+	# Function responds to remote JS calls to flip users in and out of admin mode. 
+	# Then sends a message to the current page to refresh 
+	def adminMode
+		respond_to do |format|
+			format.js {
+				puts "JS"
+				if current_user.isAdmin
+					if current_user.inAdminMode 
+						 current_user.inAdminMode = false 
+					else 
+						current_user.inAdminMode = true 
+					end 
+					current_user.save
+					render :js => "location.reload();"
+				end 
+			}
+		end 
+	end 
 
 end

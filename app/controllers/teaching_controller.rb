@@ -65,7 +65,6 @@ class TeachingController < EndUserController
 
     def webRotateXML
         respond_to do |format|
-
             format.xml { 
                 path = Dir["teaching/" + params[:path] + ".xml"]
                 File.open(path.first, 'r') do |f| 
