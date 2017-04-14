@@ -3,7 +3,8 @@
 
 # If no users exist, create one
 if User.all == []
-    User.create!(email: "tomfrankkirk@gmail.com", password: "password", isAdmin: true)
+    User.create(email: "tomfrankkirk@gmail.com", password: "password", isAdmin: true)
+    User.create(email: "christopher.horton@gtc.ox.ac.uk", password: "AnatomicalWalkthrough")
 end
 
 # Delete all questions to reseed them
@@ -27,3 +28,4 @@ end
 
 # Level names for each topic. 
 File.open(Dir['teaching/JSDict.rb'].first) { |file| load(file) }
+
