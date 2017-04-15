@@ -58,7 +58,7 @@ class User < ApplicationRecord
           end   
           self.wipeCurrentScore
           self.save
-          return false 
+          return true 
       else 
           puts "User.hasFinishedQuestions warning: could not save scores, forTopic and forLevel were passed in as nil"
           return false 
@@ -79,7 +79,6 @@ class User < ApplicationRecord
     def updateLevelScore(forTopic, forLevel, score)
         level = forLevel.to_s.to_i
         scoreRecord = ScoreRecord.new(score, Time.now.strftime("%d/%m/%Y"))
-        byebug
         # Check if the hash for this topic already exists
         # If so write the score in using the level as a numeric index into the array
         if existingTopicHash = self.scoresDictionary[forTopic]
@@ -126,6 +125,17 @@ class User < ApplicationRecord
             return nil 
         end
     end
+
+    def getLastScore(forTopic, forLevel)
+        level = forLevel.to_i
+        topicName = Topic.find(forTopic).name 
+
+        if topicHash = self.scoresDictionary[topicName]
+            return topicHash[forLevel.to_i - 1].last 
+        else 
+            return nil 
+        end 
+    end 
 
     # Check the highest level questions the user should have access to for a particular topic. 
     # Pass in the topic ID, not the topic name!
