@@ -1,4 +1,4 @@
-class StaticController < ApplicationController
+class StaticController < EndUserController
 
     # A controller to handle the various static pages in the app. 
     def index 
