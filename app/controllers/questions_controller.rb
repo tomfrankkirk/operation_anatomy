@@ -40,7 +40,7 @@ class QuestionsController < EndUserController
                         current_user.incrementCurrentScore()
                     end
                 end
-
+                
                 # Send the next question, if it exists
                 # If it does not exist then log final score and send off to the db.
                 if qID = current_user.sendNextQuestionID()
@@ -48,7 +48,10 @@ class QuestionsController < EndUserController
                 else
                     if !(current_user.hasFinishedQuestions(params[:forTopic], params[:forLevel]))  
                         flash[:errorMessage] = "Warning, could not save scores for previous level"
-                    end
+                    else 
+                        score = current_user.getLastScore(params[:forTopic], params[:forLevel])
+                        flash[:successMessage] = "#{score["score"]}% for previous questions"
+                    end 
                 render :js => "window.location = 'topics/#{params[:forTopic]}'"
                 end
              }  
