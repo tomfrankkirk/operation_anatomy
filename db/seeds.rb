@@ -2,12 +2,13 @@
 # The data can then be loaded with the rails db:seed command (or created alongside the database with db:setup).
 
 # If no users exist, create one
-User.create(email: "tomfrankkirk@gmail.com", password: "password", isAdmin: true)
-User.create(email: "christopher.horton@gtc.ox.ac.uk", password: "AnatomicalWalkthrough")
+# User.create(email: "tomfrankkirk@gmail.com", password: "password", isAdmin: true)
+# User.create(email: "christopher.horton@gtc.ox.ac.uk", password: "AnatomicalWalkthrough")
 
 # Delete all questions to reseed them
 Question.delete_all
 
+Topic.delete_all
 # Seeding topics now. 
 shoulderTopic = Topic.create(name: "Shoulder", display_name: "The Shoulder Joint")
 
