@@ -58,3 +58,6 @@ gem 'devise'
 
 # for heroku deployment
 ruby '2.4.0'
+
+# for detecting browser type
+gem "browser"
