@@ -35,7 +35,6 @@
         <td><% if i != 1 && i == @maxLevel %>
           <%= link_to 'Questions', controller: 'questions', action: 'respond', forLevel: i, forTopic: @topic.id  %>
         <% elsif i != 1 %>
-        <%= i %>
           <small><i> Locked </i></small>
         <% end %></td>
 

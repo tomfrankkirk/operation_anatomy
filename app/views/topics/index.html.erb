@@ -10,7 +10,7 @@
   <% @topics.each do |t| %>
     <tr>
       <td><%= link_to t.display_name, topic_path(t)  %></td>
-      <td><%= "#{current_user.checkLevelAccess(t.id)} / #{t.numberOfLevels}" %></td>
+      <td><i><%= "progress: #{current_user.checkLevelAccess(t.id)} / #{t.numberOfLevels}" %></i></td>
       <td><%= %></td>
     </tr>
   <% end %>

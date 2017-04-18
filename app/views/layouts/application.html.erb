@@ -5,6 +5,10 @@
     <%= csrf_meta_tags %>
     <%= stylesheet_link_tag    'application', media: 'all', "data-turbolinks-track" => true %>
     <%= javascript_include_tag 'application', "data-turbolinks-track" => true %>
+    <% if browser.device.mobile? %>
+      <meta name = "viewport" content = "user-scalable=no, initial-scale=1.0, maximum-scale=1.0, width=device-width">
+    <% end %>
+
   </head>
 
 <!-- Navbar if the user is logged in -->
@@ -13,7 +17,7 @@
       <div class="navbar-element left"><p><%= link_to "Topics", root_path %></p></div>
       
       <div class="navbar-element right">
-      <p><strong><%= link_to current_user.email, edit_user_registration_path, :class => 'navbar-link' %></strong> |
+      <p><strong><%= link_to "Account", edit_user_registration_path, :class => 'navbar-link' %></strong> |
       <%= link_to "Logout", destroy_user_session_path, method: :delete, :class => 'navbar-link'  %></p></div>
 
 <!-- Navbar if the user is not logged in -->
