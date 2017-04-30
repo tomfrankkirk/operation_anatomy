@@ -25,6 +25,15 @@
    float: right; 
 }
 
+p.indent1 {
+   display: inline-block;
+   margin-left: 1em;
+}
+
+p.indent2 {
+   display: inline-block;
+   margin-left: 2em;
+}
 
 // WebRotate 360 "basic" sheet reproduced below
 
