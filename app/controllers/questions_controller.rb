@@ -46,11 +46,15 @@ class QuestionsController < EndUserController
                 if qID = current_user.sendNextQuestionID()
                     @question = Question.find(qID)
                 else
-                    if !(current_user.hasFinishedQuestions(params[:forTopic], params[:forLevel]))  
-                        flash[:errorMessage] = "Warning, could not save scores for previous level"
+                    if !current_user.inAdminMode
+                        if !(current_user.hasFinishedQuestions(params[:forTopic], params[:forLevel]))  
+                            flash[:errorMessage] = "Warning, could not save scores for previous level"
+                        else 
+                            score = current_user.getLastScore(params[:forTopic], params[:forLevel])
+                            flash[:successMessage] = "#{score["score"]}% for previous questions"
+                        end 
                     else 
-                        score = current_user.getLastScore(params[:forTopic], params[:forLevel])
-                        flash[:successMessage] = "#{score["score"]}% for previous questions"
+                        flash[:successMessage] = "Raw admin score: #{current_user.currentScore}"
                     end 
                 render :js => "window.location = 'topics/#{params[:forTopic]}'"
                 end

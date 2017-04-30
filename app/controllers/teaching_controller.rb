@@ -36,8 +36,8 @@ class TeachingController < EndUserController
             # Simply increment or decrement currentPart and re-load. 
             format.js {
                 @currentPart = (params[:currentPart]).to_i     
-                # Check if this is the end of the level, if so set flag on user object. 
-                if @currentPart.to_i + 1 == @paths.count 
+                # Check if this is the end of the level, if so set flag on user object if not admin mode
+                if @currentPart.to_i + 1 == @paths.count && !current_user.inAdminMode
                     current_user.setLevelViewed(@topic.name, @level)
                 end 
             }
