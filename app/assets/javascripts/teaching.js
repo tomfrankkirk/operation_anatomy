@@ -1,5 +1,3 @@
-document.addEventListener("mouseup", define, false)
-
 function define() {
     searchString = getSelectionText();
     if (searchString.length > 1 && searchString.length < 35) {
