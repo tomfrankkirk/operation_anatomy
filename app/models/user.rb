@@ -115,88 +115,88 @@ class User < ApplicationRecord
     # Get score-date object. Check that the topic hash does actually exist before
     # attempting to access it. If not return nil. Again make sure the inputs are in the right form. 
 
-    def getLevelScore(forTopic, forLevel)
-        level = (forLevel.to_s).to_i
+   def getLevelScore(forTopic, forLevel)
+      level = (forLevel.to_s).to_i
 
-        # Check for dodgy inputs. 
-        if level <= 0
-            puts "Warning: 0 or lower level requested for getScore on topic #{level} user #{self.id} object. Nil returned"
-            return nil 
-        end
-
-         # Nonnegative inputs - check that the topic hash exists and if so check that the 
-         # level has actually been attempted
-         if topicHash = self.scoresDictionary[forTopic]
-            if level <= (topicHash.count)
-               return topicHash[level - 1]
-            end 
-         end 
+      # Check for dodgy inputs. 
+      if level <= 0
+         puts "Warning: 0 or lower level requested for getScore on topic #{level} user #{self.id} object. Nil returned"
          return nil 
-
       end
 
-    def getLastScore(forTopic, forLevel)
-        level = forLevel.to_i
-        topicName = Topic.find(forTopic).name 
+      # Nonnegative inputs - check that the topic hash exists and if so check that the 
+      # level has actually been attempted
+      if topicHash = self.scoresDictionary[forTopic]
+         if level <= (topicHash.count)
+            return topicHash[level - 1]
+         end 
+      end 
+      return nil 
 
-        if topicHash = self.scoresDictionary[topicName]
-            return topicHash[forLevel.to_i - 1]
-        else 
-            return nil 
-        end 
-    end 
+   end
+
+   def getLastScore(forTopic, forLevel)
+      level = forLevel.to_i
+      topicName = Topic.find(forTopic).name 
+
+      if topicHash = self.scoresDictionary[topicName]
+         return topicHash[forLevel.to_i - 1]
+      else 
+         return nil 
+      end 
+   end 
 
     # Check the highest level questions the user should have access to for a particular topic. 
 
-    def checkLevelAccess(forTopic)
-        # Check what level they have viewed up to first
-        maxView = self.getHighestViewedLevel(forTopic)
+   def checkLevelAccess(forTopic)
+      # Check what level they have viewed up to first
+      maxView = self.getHighestViewedLevel(forTopic)
 
-        if existingTopicHash = scoresDictionary[forTopic]
-            # If the most recent score is greater than the threshold, then give access to the next level
-            if existingTopicHash.last["score"] >= Threshold
-                return [existingTopicHash.count + 1, maxView].min
+      if existingTopicHash = scoresDictionary[forTopic]
+         # If the most recent score is greater than the threshold, then give access to the next level
+         if existingTopicHash.last["score"] >= Threshold
+               return [existingTopicHash.count + 1, maxView].min
 
-            # If not, give access to the level that they are currently working on (and have not yet managed
-            # to get above threshold for -> this is simply the count of scores in the topic hash) 
-            else 
-                return [existingTopicHash.count, maxView].min
-            end
-        else
-            # Topic has not previously been attempted, so return 2 (first available level)
-            return [maxView, 2].min 
-        end 
-    
-    end
+         # If not, give access to the level that they are currently working on (and have not yet managed
+         # to get above threshold for -> this is simply the count of scores in the topic hash) 
+         else 
+               return [existingTopicHash.count, maxView].min
+         end
+      else
+         # Topic has not previously been attempted, so return 2 (first available level)
+         return [maxView, 2].min 
+      end 
+   
+   end
 
-    # LEVEL VIEW METHODS
+   # LEVEL VIEW METHODS
 
-    # These methods are used to ensure that the user has actually read things before attempting questions. 
-    def setLevelViewed(forTopic, forLevel)
-        level = forLevel.to_s 
-        if existingHash = levelViewsDictionary[forTopic]
-            existingHash[level] = true 
-        else 
-            levelViewsDictionary[forTopic] = {level => true}
-        end 
-        self.save
-    end 
+   # These methods are used to ensure that the user has actually read things before attempting questions. 
+   def setLevelViewed(forTopic, forLevel)
+      level = forLevel.to_s 
+      if existingHash = levelViewsDictionary[forTopic]
+         existingHash[level] = true 
+      else 
+         levelViewsDictionary[forTopic] = {level => true}
+      end 
+      self.save
+   end 
 
     # Warning: this function has an important side-effect. 
 
-    def getHighestViewedLevel(forTopic)
-        # If hash exists all good, otherwise return 0 (user should be allowed to read level 1)
-        if existingHash = levelViewsDictionary[forTopic]
-            if existingHash == {}
-                return 0
-            else 
-                maxLevel = existingHash.max_by { |level, bool| level.to_i }
-                return maxLevel[0].to_i 
-            end 
-        else 
-            return 0
-        end 
-    end 
+   def getHighestViewedLevel(forTopic)
+      # If hash exists all good, otherwise return 0 (user should be allowed to read level 1)
+      if existingHash = levelViewsDictionary[forTopic]
+         if existingHash == {}
+               return 0
+         else 
+               maxLevel = existingHash.max_by { |level, bool| level.to_i }
+               return maxLevel[0].to_i 
+         end 
+      else 
+         return 0
+      end 
+   end 
 
    def softResetLevelViews
       self.levelViewsDictionary = {}
