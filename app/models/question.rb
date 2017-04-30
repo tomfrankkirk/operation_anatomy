@@ -19,4 +19,8 @@ class Question < ApplicationRecord
         return topicName + "L#{self.level}Q#{self.number}"
     end
 
+    def solution 
+        return self.possibleSolutions.first 
+    end 
+
 end
