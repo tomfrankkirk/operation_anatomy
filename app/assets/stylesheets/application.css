@@ -14,12 +14,39 @@
  *= require_self
  */
 
+/* default font is Roboto */
+
+* { 
+    font-family: Roboto, sans-serif; 
+}
+
+/* Fonts */
+
 body {
     text-align: center;
     text-align: justify;
-    font-family: Roboto;
     margin-top: 60px; 
 }
+
+p {
+    text-align: justify;
+}
+
+figcaption {
+    text-align: center;
+    font-style: italic
+}
+
+figcaption.toggleLabel {
+    font-size: 12px;
+    font-style: normal
+}
+
+h1 {
+
+}
+
+/* others */
 
 .centered {
     display: table;
@@ -52,40 +79,10 @@ body {
     float: right; 
 }
 
-p {
-    font-family: Roboto, Arial, sans-serif;
-    text-align: justify;
-}
-
-p.thick {
-    font-family: Roboto;
-    font-style: bold
-}
-
-figcaption {
-    text-align: center;
-    font-family: Roboto;
-    font-style: italic
-}
-
-figcaption.toggleLabel {
-    font-family: Roboto;
-    font-size: 12px;
-    font-style: normal
-}
-
 img.displayed {
     display: block;
     margin-left: auto;
     margin-right: auto
-}
-
-li {
-    font-family: Roboto;
-}
-
-li2 {
-    font-family: inherit
 }
 
 /* Feedback form (inc background) */
