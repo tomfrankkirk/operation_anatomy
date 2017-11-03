@@ -9,7 +9,7 @@ $(document).ready(function () {
         div = document.getElementById("pageDisplayArea"); 
         now = new Date(); 
         console.log("time diff" + (now - lastDfnTime))
-        if (div != null && now - lastDfnTime > 3000) {
+        if (div != null && now - lastDfnTime > 2000) {
             define(); 
         } else {
             console.log("Could not find pageDisplayArea div, event ignored."); 
