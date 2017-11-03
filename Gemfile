@@ -57,7 +57,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem 'devise'
 
 # for heroku deployment
-ruby '2.4.0'
+ruby '~> 2.4.0'
 
 # for detecting browser type
 gem "browser"
