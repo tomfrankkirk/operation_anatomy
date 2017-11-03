@@ -41,21 +41,22 @@ class UsersController < EndUserController
 
 	# Function responds to remote JS calls to flip users in and out of admin mode. 
 	# Then sends a message to the current page to refresh 
-	def adminMode
+   def adminMode
+      current_user.toggleAdminMode
 		respond_to do |format|
 			format.js {
-				puts "JS"
-				if current_user.isAdmin
-					if current_user.inAdminMode 
-						 current_user.inAdminMode = false 
-					else 
-						current_user.inAdminMode = true 
-					end 
-					current_user.save
-					render :js => "location.reload();"
-				end 
+            render :js => "location.reload();"
 			}
 		end 
-	end 
+   end 
+   
+   def revisionMode 
+      current_user.toggleRevisionMode 
+      respond_to do |format|
+         format.js {
+            render :js => "location.reload();"
+         }
+      end 
+   end 
 
 end

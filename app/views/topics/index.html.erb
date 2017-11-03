@@ -31,4 +31,10 @@
   <%= link_to "Users index", controller: "users", action: "index" %>
 <% end %>
 
+<!-- Revision mode links -->
+<% if current_user.revisionMode %>
+   <%= link_to "Exit revision mode", "/users/revisionMode/#{current_user.id}", remote: true %>
+<% else %>
+   <%= link_to "Enter revision mode", "/users/revisionMode/#{current_user.id}", remote: true %>
+<% end %>
 

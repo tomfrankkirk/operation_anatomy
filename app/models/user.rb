@@ -215,5 +215,17 @@ class User < ApplicationRecord
    def hardResetLevelViews
       self.levelViewsDictionary = {}
    end 
-             
+
+   def toggleRevisionMode 
+      self.revisionMode = !self.revisionMode 
+      self.save      
+   end 
+
+   def toggleAdminMode 
+      if self.isAdmin
+         self.inAdminMode = !self.inAdminMode 
+      end 
+      self.save 
+   end 
+   
 end
