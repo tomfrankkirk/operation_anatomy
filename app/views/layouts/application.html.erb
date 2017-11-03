@@ -1,7 +1,13 @@
 <!DOCTYPE html>
+
+<!-- OPERATION ANATOMY -->
+<!-- (C) Chris Horton (content) and Tom Kirk (source code) 2016 -->
+<!-- All content contained within is copyright unless explcitly stated otherwise. -->
+<!-- This site is in development and as such is provided as-is with no explicit guarantee as to accuracy of content. -->
+
 <html>
   <head>
-    <title>Operation Anatomy</title>
+    <title><%= site_name %></title>
     <%= csrf_meta_tags %>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <%= stylesheet_link_tag    'application', media: 'all', "data-turbolinks-track" => true %>
@@ -18,13 +24,16 @@
       <div class="navbar-element left"><p><%= link_to "Topics", root_path %></p></div>
       
       <div class="navbar-element right">
-      <p><strong><%= link_to "Account", edit_user_registration_path, :class => 'navbar-link' %></strong> |
+         <p><strong><%= link_to "Account", edit_user_registration_path, :class => 'navbar-link' %></strong> |
       <%= link_to "Logout", destroy_user_session_path, method: :delete, :class => 'navbar-link'  %></p></div>
 
 <!-- Navbar if the user is not logged in -->
     <% elsif controller_name != "questions" %>
+      <div class="navbar-element left"> 
+         <p>Operation Anatomy</p> 
+      </div>
       <div class="navbar-element right">
-      <p><%= link_to "Sign up", new_user_registration_path, :class => 'navbar-link'  %> |
+         <p><%= link_to "Sign up", new_user_registration_path, :class => 'navbar-link'  %> |
       <%= link_to "Login", new_user_session_path, :class => 'navbar-link'  %></p></div>
     <% end %>
 </div>
