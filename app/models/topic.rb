@@ -1,5 +1,6 @@
 class Topic < ApplicationRecord
     serialize :level_names, Array
+    belongs_to :system
     has_many :questions, dependent: :destroy
 
     # Method to fetch shuffled array for all questions of a certain level within a topic. 
@@ -29,7 +30,6 @@ class Topic < ApplicationRecord
     # and then put in the latest ones. 
     def loadLevelNames
         path = Dir["teaching/#{self.name}/LevelNames.txt"]
-        puts path
         if path
             self.level_names = []
             File.open(path.first) { |f|

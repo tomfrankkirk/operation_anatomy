@@ -3,14 +3,17 @@ Rails.application.routes.draw do
    # devise routes
    devise_for :users
 
+   resources :topics
+   resources :systems 
+
    # custom routes
    get    '/teaching',                      to: 'teaching#show'
    get    '/images/:id',                    to: 'teaching#fetchImage'
    get    '/teaching/define',               to: 'teaching#define'
    post   '/questions',                     to: 'questions#respond'
    get    '/questions',                     to: 'questions#respond'
-   get    '/topics',                        to: 'topics#index'
-   get    '/topics/:id',                    to: 'topics#show', as: 'topic'
+   # get    '/topics',                        to: 'topics#index'
+   # get    '/topics/:id',                    to: 'topics#show', as: 'topic'
    get    '/dictionary_entries',            to: 'dictionary_entries#index'
    post   '/feedback',                      to: 'users#submitFeedback'
    get    '/questions_index',               to: 'questions#index'
@@ -22,6 +25,6 @@ Rails.application.routes.draw do
    get    '/users/revisionMode/:id',        to: 'users#revisionMode'
 
    # the root of the app -> straight to all topics
-   root "topics#index"
+   root "static#about"
 
 end
