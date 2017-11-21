@@ -20,8 +20,19 @@
 
 <!-- Navbar if the user is logged in -->
 <div class='navbar'>
-    <% if user_signed_in? && controller_name != "questions" %>
-      <div class="navbar-element left"><p><%= link_to "Topics", root_path %></p></div>
+    <% if user_signed_in? %>
+
+      <% if controller_name == "topics" && params[:action] == "show" %>
+         <% system = System.find(@topic.system_id) %>
+         <div class="navbar-element left"><p><%= link_to system.name + " system", system_path(system) %></p></div>
+      <% elsif controller_name == "systems" && params[:action] == "index" %>
+         <div class="navbar-element left"><p><%= link_to "Home", systems_path %></p></div>
+      <% elsif controller_name == "teaching" && params[:action] == "show" %>
+         <% topic = Topic.find(params[:id]) %>
+         <div class="navbar-element left"><p><%= link_to topic.level_names[params[:forLevel].to_i], topic_path(topic) %></p></div>
+      <% elsif controller_name != "questions" || controller_name != "systems" %>
+         <div class="navbar-element left"><p><%= link_to "Home", systems_path %></p></div>
+      <% end %>
       
       <div class="navbar-element right">
          <p><strong><%= link_to "Account", edit_user_registration_path, :class => 'navbar-link' %></strong> |
@@ -41,12 +52,12 @@
 <!-- Body of the page -->
   <body>
     <!-- Devise messages here. Integrate into the flash at some point? -->
-    <!-- <% if notice %>
+    <% if notice %>
       <p class="alert alert-success"><%= notice %></p>
     <% end %>
     <% if alert %>
       <p class="alert alert-danger"><%= alert %></p>
-    <% end %> -->
+    <% end %>
 
     <!-- Flash messages here -->
     <% flash.each do |name, msg| -%>
