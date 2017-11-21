@@ -1,0 +1,21 @@
+img.menuIcon {
+   display: block;
+   height: 100%; 
+   width: auto; 
+   margin-left: auto; 
+   margin-right: auto; 
+   border-collapse: separate; 
+   padding: 10px; 
+}
+
+
+td {
+   height: 200px; 
+   width: 200px; 
+   align-content: center
+}
+
+table {
+   align-content: center; 
+   align-items: center; 
+}
