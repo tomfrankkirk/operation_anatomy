@@ -11,7 +11,7 @@ class TeachingController < EndUserController
     # This method updates teaching page partials via JS ajax requests. 
     # It is also responsible for setting "level viewed" flags when the user reaches end of level 
     def show
-        @topic = Topic.find(params[:forTopic]) 
+        @topic = Topic.find(params[:id]) 
         @level = params[:forLevel]
 
         # Attempt to get the paths for this topic and level. Returns nil if files not found. 

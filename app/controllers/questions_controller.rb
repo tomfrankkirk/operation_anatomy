@@ -18,12 +18,12 @@ class QuestionsController < EndUserController
 
             # First response, draw the HTML page. 
             format.html {  
-                if t = Topic.find(params[:forTopic].to_i) 
+                if t = Topic.find(params[:id].to_i) 
                     @name = t.display_name 
                     @levelName = t.levelName(params[:forLevel].to_i)
-                    session[:forTopic] = params[:forTopic]
+                    session[:id] = params[:id]
                     session[:forLevel] = params[:forLevel]
-                    current_user.prepareQuestions(params[:forTopic], params[:forLevel])
+                    current_user.prepareQuestions(params[:id], params[:forLevel])
                 else 
                     # Didn't find the topic for some reason. Flash error?
                     render "error"
@@ -47,16 +47,16 @@ class QuestionsController < EndUserController
                     @question = Question.find(qID)
                 else
                     if !current_user.inAdminMode
-                        if !(current_user.hasFinishedQuestions(params[:forTopic], params[:forLevel]))  
+                        if !(current_user.hasFinishedQuestions(params[:id], params[:forLevel]))  
                             flash[:errorMessage] = "Warning, could not save scores for previous level"
                         else 
-                            score = current_user.getLastScore(params[:forTopic], params[:forLevel])
+                            score = current_user.getLastScore(params[:id], params[:forLevel])
                             flash[:successMessage] = "#{score["score"]}% for previous questions"
                         end 
                     else 
                         flash[:successMessage] = "Raw admin score: #{current_user.currentScore}"
                     end 
-                render :js => "window.location = 'topics/#{params[:forTopic]}'"
+                render :js => "window.location = 'topics/#{params[:id]}'"
                 end
              }  
         end
