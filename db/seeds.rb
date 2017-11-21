@@ -9,8 +9,10 @@
 Question.delete_all
 
 Topic.delete_all
-# Seeding topics now. 
-shoulderTopic = Topic.create(name: "Shoulder", display_name: "The Shoulder Joint")
+
+# Seeding systems and topics. 
+msSystem = System.create(name: "Musculoskeletal")
+shoulderTopic = Topic.create(name: "Shoulder", display_name: "The Shoulder Joint", system_id: msSystem.id)
 
 # Load the level names in. Each topic directory should have a document named LevelNames.txt at the top level. 
 Topic.all.each do |t|
