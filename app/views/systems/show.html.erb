@@ -1,0 +1,20 @@
+<h1> <%= @system.name + " system" %> </h1>
+ 
+ <!-- Topics index: show all and progress through each -->
+<table>
+  <tr>
+    <th></th>
+    <th></th>
+  </tr>
+ 
+  <% @topics.each do |t| %>
+    <tr>
+      <td><%= link_to t.display_name, topic_path(t)  %></td>
+      <td><i><%= "progress: #{current_user.checkLevelAccess(t.id)} / #{t.numberOfLevels}" %></i></td>
+      <td><%= %></td>
+    </tr>
+  <% end %>
+</table>
+
+<br>
+

@@ -1,1 +1,27 @@
-Sytems index. 
+<h2> Sytems index. </h2> 
+
+
+<% @systems.each do |s| %>
+   <p><%= link_to s.name, system_path(s) %></p>
+<% end %>
+
+
+<!-- Admin mode control -->
+<% if current_user.isAdmin && !current_user.inAdminMode %>
+  <%= link_to "Enter admin mode", "/users/adminMode/#{current_user.id}", remote: true %>
+<% elsif @admin %>
+  <%= link_to "Exit admin mode", "/users/adminMode/#{current_user.id}", remote: true %>
+<% end %>
+
+<!-- Admin mode links -->
+<% if @admin %>
+  <%= link_to "Questions index", controller: "questions", action: "index" %>
+  <%= link_to "Users index", controller: "users", action: "index" %>
+<% end %>
+
+<!-- Revision mode links -->
+<% if current_user.revisionMode %>
+   <%= link_to "Exit revision mode", "/users/revisionMode/#{current_user.id}", remote: true %>
+<% else %>
+   <%= link_to "Enter revision mode", "/users/revisionMode/#{current_user.id}", remote: true %>
+<% end %>
