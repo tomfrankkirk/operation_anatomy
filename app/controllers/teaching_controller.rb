@@ -15,7 +15,7 @@ class TeachingController < EndUserController
         @level = params[:forLevel]
 
         # Attempt to get the paths for this topic and level. Returns nil if files not found. 
-        @paths = teachingPagePaths(@topic.name, @level)
+        @paths = teachingPagePaths(@topic.shortName, @level)
         respond_to do |format| 
 
             # First page load. Set currentPart = 0 and pass all paths off to the view to render. 
@@ -23,6 +23,7 @@ class TeachingController < EndUserController
             # currentPart with the total number of parts loaded (the count of paths)
             format.html {
                 if @paths
+                    @path = @paths.first 
                     @currentPart = 0
                     if @currentPart + 1 == @paths.count
                         current_user.setLevelViewed(@topic.name, @level)
@@ -35,7 +36,9 @@ class TeachingController < EndUserController
 
             # Simply increment or decrement currentPart and re-load. 
             format.js {
-                @currentPart = (params[:currentPart]).to_i     
+                @currentPart = (params[:currentPart]).to_i
+                # FIXME: this logic only works for less than 10 parts, otherwise p1 could match with p10 - 19!
+                @path = @paths.find { |p| p['P' + (@currentPart + 1).to_s] != nil }
                 # Check if this is the end of the level, if so set flag on user object if not admin mode
                 if @currentPart.to_i + 1 == @paths.count && !current_user.inAdminMode
                     current_user.setLevelViewed(@topic.name, @level)
@@ -83,15 +86,15 @@ class TeachingController < EndUserController
 
     private
 
-    def teachingPagePaths(forTopicName, forLevel)
-        pathStr = 'teaching/' + forTopicName + '/L' + forLevel.to_s + '/' + forTopicName + 'L' + forLevel.to_s + '*'
-        paths = Dir[pathStr]
-        if paths == []
-            return nil 
-        else 
-            return paths 
-        end
-    end
+   def teachingPagePaths(forTopicName, forLevel)
+      pathStr = 'teaching/' + forTopicName + '/' + forLevel + '/*.html'
+      paths = Dir[pathStr]      
+      if paths == []
+         return nil 
+      else 
+         return paths 
+      end
+   end
 
     def expandImagePath(imageName)
         imageName = imageName.sub('/images/', '')
