@@ -3,7 +3,7 @@
 <!-- OPERATION ANATOMY -->
 <!-- (C) Chris Horton (content) and Tom Kirk (source code) 2016 -->
 <!-- All content contained within is copyright unless explcitly stated otherwise. -->
-<!-- This site is in development and as such is provided as-is with no explicit guarantee as to accuracy of content. -->
+<!-- This site is in development and as such is provided as-is with no guarantee as to the accuracy of content. -->
 
 <html>
   <head>
@@ -29,7 +29,7 @@
          <div class="navbar-element left"><p><%= link_to "Home", systems_path %></p></div>
       <% elsif controller_name == "teaching" && params[:action] == "show" %>
          <% topic = Topic.find(params[:id]) %>
-         <div class="navbar-element left"><p><%= link_to topic.level_names[params[:forLevel].to_i], topic_path(topic) %></p></div>
+         <div class="navbar-element left"><p><%= link_to topic.levelNames[params[:forLevel].to_i], topic_path(topic) %></p></div>
       <% elsif controller_name != "questions" || controller_name != "systems" %>
          <div class="navbar-element left"><p><%= link_to "Home", systems_path %></p></div>
       <% end %>
@@ -54,9 +54,6 @@
     <!-- Devise messages here. Integrate into the flash at some point? -->
     <% if notice %>
       <p class="alert alert-success"><%= notice %></p>
-    <% end %>
-    <% if alert %>
-      <p class="alert alert-danger"><%= alert %></p>
     <% end %>
 
     <!-- Flash messages here -->
