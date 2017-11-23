@@ -1,10 +1,7 @@
-<h2> Sytems index. </h2> 
+<h1> Systems Menu </h1> 
 
 
-<% @systems.each do |s| %>
-   <p><%= link_to s.name, system_path(s) %></p>
-<% end %>
-
+<%= render "shared/iconTable", items: @systemNames, path_root: systems_path, path_stubs: @pathStubs, icon_stubs: @iconStubs %>
 
 <!-- Admin mode control -->
 <% if current_user.isAdmin && !current_user.inAdminMode %>
