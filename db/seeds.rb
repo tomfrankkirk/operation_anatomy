@@ -7,17 +7,26 @@
 
 # Delete all questions to reseed them
 Question.delete_all
-
 Topic.delete_all
+System.delete_all
 
-# Seeding systems and topics. 
-msSystem = System.create(name: "Musculoskeletal")
-shoulderTopic = Topic.create(name: "Shoulder", display_name: "The Shoulder Joint", system_id: msSystem.id)
+# Seed systems 
+msk = System.create(name: "Musculoskeletal")
+msk.level_names = [ "Introduction", "Bones", "Ligaments & Stablising Structures", "Vasculature", "Innervation", "Movements", "Muscles", "Clinical Relevance" ] 
+msk.save
 
-# Load the level names in. Each topic directory should have a document named LevelNames.txt at the top level. 
-Topic.all.each do |t|
-    t.loadLevelNames
-end
+cv = System.create(name: "Cardiovascular")
+gi = System.create(name: "Gastrointestinal")
+hb = System.create(name: "Hepatobiliary")
+uro = System.create(name: "Urogenital")
+rs = System.create(name: "Respiratory")
+intro = System.create(name: "Introduction to Anatomy")
+
+
+
+# Seeding topics 
+shoulderTopic = Topic.create(name: "The Shoulder Joint", system_id: msk.id)
+
 
 # Seeding questions
 File.open(Dir['teaching/questionSeed.rb'].first) { |file| load(file) }
