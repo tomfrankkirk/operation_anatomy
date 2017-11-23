@@ -1,0 +1,26 @@
+
+<% if browser.device.mobile? %>
+   <% nCols = 1 %> 
+<% else %>
+   <% nCols = 3 %>
+<% end %>
+<% nItems = items.count %>
+<% nRows = (nItems / nCols.to_f).ceil %>
+
+
+
+<table>
+<% nRows.times do |r| %>
+   <tr>
+      <% nCols.times do |c| %>
+         <% k = (r*nCols) + c %>
+         <% if k <= nItems - 1 %>
+            <td class="tableViewCell" align="center"> <% i = items[k] %>
+            <% path = path_root + path_stubs[k] %>
+            <%= link_to image_tag("icons/" + icon_stubs[k], :class => "menuIcon"), path %>
+            <%= link_to i, path %> </td>
+         <% end %>
+      <% end %>
+   </tr>
+<% end %>   
+</table>
