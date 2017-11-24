@@ -1,0 +1,218 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or any plugin's vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require_tree .
+ *= require_self
+ */
+
+/* default font is Roboto */
+
+* { 
+    font-family: Roboto, sans-serif; 
+}
+
+/* Fonts */
+
+body {
+    text-align: center;
+    text-align: justify;
+    width: 97%; 
+    margin: auto; 
+    margin-top: 60px;     
+}
+
+p {
+    text-align: justify;
+}
+
+figcaption {
+    text-align: center;
+    font-style: italic
+}
+
+figcaption.toggleLabel {
+    font-size: 12px;
+    font-style: normal
+}
+
+h1 {
+   text-align: center; 
+}
+
+/* Revision pointers, feature boxes etc.  */
+
+
+/* Feature box base class (for revision pointers, clinical relevance etc) */
+
+// Background constants for icon size and position, used for each subclass. 
+$backgroundSize: 90px 90px; 
+$backgroundRepeat: no-repeat; 
+$backgroundPosition: left top; 
+$backgroundMarginLeft: -26px; 
+$backgroundMarginTop: -99px; 
+
+// Defines the borders and the area within which the actual content will be displayed. 
+.featureBox {
+   border-top: 45px solid royalblue; 
+   border-bottom: 4px solid royalblue; 
+   margin-top: 40px; 
+   padding-top: 30px; 
+   margin-bottom: 30px; 
+   padding-left: 20px; 
+   padding-right: 20px; 
+}
+
+// Defines the header area for each feature, inc icon and title. 
+.featureBox:before {
+   // Title colour, size etc. 
+   color: white;
+   font-family: inherit; 
+   font-style: italic; 
+   font-size: 20px; 
+
+   // The div area within which the icon will be drawn. 
+   width:90%;
+   height:60px;
+   padding-top: 35px; 
+   padding-left: 120px; 
+   display: block; 
+}
+
+.revisionPointer:before{
+   content: 'Revision Pointer'; 
+   background: image-url('icons/revision.png');
+   background-size: $backgroundSize;
+   background-repeat: $backgroundRepeat; 
+   background-position: $backgroundPosition;   
+   margin-left: $backgroundMarginLeft;
+   margin-top: $backgroundMarginTop; 
+}
+
+.clinicalRelevance:before {
+   content: 'Clinical Relevance'; 
+   background: image-url('icons/relevance.png');
+   background-size: $backgroundSize;
+   background-repeat: $backgroundRepeat; 
+   background-position: $backgroundPosition;   
+   margin-left: $backgroundMarginLeft;
+   margin-top: $backgroundMarginTop; 
+}
+
+.experimentalEvidence:before {
+   content: 'Experimental Evidence'; 
+   background: image-url('icons/evidence.png');
+   background-size: $backgroundSize;
+   background-repeat: $backgroundRepeat; 
+   background-position: $backgroundPosition;   
+   margin-left: $backgroundMarginLeft;
+   margin-top: $backgroundMarginTop; 
+}
+
+.keepInMind:before {
+   content: 'Keep In Mind!'; 
+   background: image-url('icons/mind.png');
+   background-size: $backgroundSize;
+   background-repeat: $backgroundRepeat; 
+   background-position: $backgroundPosition;   
+   margin-left: $backgroundMarginLeft;
+   margin-top: $backgroundMarginTop; 
+}
+
+/* others */
+
+.centered {
+    display: table;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.navbar {
+    background-color: lightblue; 
+    top: 0;
+    left: 0; 
+    right: 0; 
+    height: 50px; 
+    position: absolute; 
+    padding: 0px;
+    overflow: hidden; 
+}
+
+.navbar-element {
+    display: inline-block; 
+}
+
+.navbar-element.left { 
+    margin-left: 10px;
+    float: left; 
+}
+
+.navbar-element.right {
+    margin-right: 10px; 
+    float: right; 
+}
+
+img.displayed {
+    display: block;
+    margin-left: auto;
+    margin-right: auto
+}
+
+/* Feedback form (inc background) */
+div.feedbackForm {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Feedback form content */
+div.feedbackFormContent {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 40%;
+}
+
+textarea {
+    width: 98%; 
+}
+
+div.feedbackLink {
+    /*height: 100px; 
+    width:100%;
+    position: absolute;
+    left: 0;
+    bottom: 0; */
+
+    /*position: fixed; 
+    bottom: 0;
+    width: 100%;
+    background-color: white; 
+    border: 1px solid #888; 
+    padding: 5px; */
+}
+
+table {
+    margin: auto;
+    border-spacing: 10px;  
+}
+
+
+
