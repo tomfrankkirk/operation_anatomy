@@ -9,16 +9,22 @@
 
 
 
-<table>
+<table class="iconMenu">
 <% nRows.times do |r| %>
    <tr>
       <% nCols.times do |c| %>
          <% k = (r*nCols) + c %>
          <% if k <= nItems - 1 %>
-            <td class="tableViewCell" align="center"> <% i = items[k] %>
+            <td class="iconMenuCell"> <% i = items[k] %>
             <% path = path_root + path_stubs[k] %>
             <%= link_to image_tag("icons/" + icon_stubs[k], :class => "menuIcon"), path %>
-            <%= link_to i, path %> </td>
+            <%= link_to i, path %> 
+            <% if defined?(secondaryLinks) && k != 0 %>
+               <br> <i> <%= link_to "Quiz", controller: "questions", action: "respond", 
+                  id: @topic.id, levelName: path_stubs[k] %> </i>
+            <% else %>
+               <br> <br>
+            <% end %> </td>
          <% end %>
       <% end %>
    </tr>
