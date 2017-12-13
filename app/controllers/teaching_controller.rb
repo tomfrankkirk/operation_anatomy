@@ -26,7 +26,7 @@ class TeachingController < EndUserController
                     @path = @paths.first 
                     @currentPart = 0
                     if @currentPart + 1 == @paths.count
-                        current_user.setLevelViewed(@topic.name, @level)
+                        current_user.setLevelViewed(@topic.id, @level)
                     end 
                 else 
                     # If unsuccessful then render the error message
@@ -37,31 +37,11 @@ class TeachingController < EndUserController
             # Simply increment or decrement currentPart and re-load. 
             format.js {
                 @currentPart = (params[:currentPart]).to_i
-                # FIXME: this logic only works for less than 10 parts, otherwise p1 could match with p10 - 19!
                 @path = @paths.find { |p| p['P' + (@currentPart + 1).to_s] != nil }
                 # Check if this is the end of the level, if so set flag on user object if not admin mode
                 if @currentPart.to_i + 1 == @paths.count && !current_user.inAdminMode
-                    current_user.setLevelViewed(@topic.name, @level)
+                    current_user.setLevelViewed(@topic.id, @level)
                 end 
-            }
-        end
-    end
-
-    def define
-        respond_to do |format|
-            format.json { 
-
-                # Check the param searchString was successfully received. 
-                if string = params[:searchString]
-                    entry = DictionaryEntry.searchForEntry(string)
-                    if entry 
-                        render :json => { :definition => entry.definition.downcase, :title => entry.title.capitalize, :example => entry.example.downcase }
-                        return 
-                    end 
-                end 
-
-                # If not, return an empty hash 
-                render :json => { :definition => "" }     
             }
         end
     end
@@ -84,7 +64,7 @@ class TeachingController < EndUserController
         end 
     end 
 
-    private
+   private
 
    def teachingPagePaths(forTopicName, forLevel)
       pathStr = 'teaching/' + forTopicName + '/' + forLevel + '/*.html'
@@ -92,17 +72,17 @@ class TeachingController < EndUserController
       if paths == []
          return nil 
       else 
-         return paths 
+         return paths.sort_by { |s| s[/\d+/].to_i }  # Some funky regexp!
       end
    end
 
-    def expandImagePath(imageName)
-        imageName = imageName.sub('/images/', '')
-        topic = imageName.slice(0, imageName.index('L')) 
-        level = imageName.slice((imageName.index('L') + 1) .. (imageName.index('P' ) - 1) ) 
-        part = imageName.slice((imageName.index('P') + 1) .. (imageName.index('Image') - 1) )
-        path = 'teaching/' + topic + '/L' + level + '/images/' + imageName
-        return path 
-    end 
+   #  def expandImagePath(imageName)
+   #      imageName = imageName.sub('/images/', '')
+   #      topic = imageName.slice(0, imageName.index('L')) 
+   #      level = imageName.slice((imageName.index('L') + 1) .. (imageName.index('P' ) - 1) ) 
+   #      part = imageName.slice((imageName.index('P') + 1) .. (imageName.index('Image') - 1) )
+   #      path = 'teaching/' + topic + '/L' + level + '/images/' + imageName
+   #      return path 
+   #  end 
 
 end
