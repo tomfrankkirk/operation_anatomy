@@ -14,8 +14,8 @@ class TopicsController < EndUserController
         @topic = Topic.find(params[:id])
         @revisionMode = current_user.revisionMode
         @admin = current_user.isAdmin && current_user.inAdminMode
-        @maxLevel = current_user.checkLevelAccess(@topic.name)
-        @highestViewed = current_user.getHighestViewedLevel(@topic.name)
+        @maxLevel = current_user.checkLevelAccess(@topic.id)
+        @highestViewed = current_user.getHighestViewedLevel(@topic.id)
         @levelNames = @topic.levelNames 
         @pathRoot = "/teaching?id=#{@topic.id}&forLevel="
         @pathStubs = @topic.shortLevelNames
