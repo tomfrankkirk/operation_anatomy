@@ -16,53 +16,157 @@
       <meta name = "viewport" content = "user-scalable=no, initial-scale=1.0, maximum-scale=1.0, width=device-width">
     <% end %>
 
-  </head>
+   </head>
 
-<!-- Navbar if the user is logged in -->
-<div class='navbar'>
-    <% if user_signed_in? %>
+<body>
 
-      <% if controller_name == "topics" && params[:action] == "show" %>
-         <% system = System.find(@topic.system_id) %>
-         <div class="navbar-element left"><p><%= link_to system.name + " system", system_path(system) %></p></div>
-      <% elsif controller_name == "systems" && params[:action] == "index" %>
-         <div class="navbar-element left"><p><%= link_to "Home", systems_path %></p></div>
-      <% elsif controller_name == "teaching" && params[:action] == "show" %>
-         <% topic = Topic.find(params[:id]) %>
-         <div class="navbar-element left"><p><%= link_to topic.levelNames[params[:forLevel].to_i], topic_path(topic) %></p></div>
-      <% elsif controller_name != "questions" || controller_name != "systems" %>
-         <div class="navbar-element left"><p><%= link_to "Home", systems_path %></p></div>
-      <% end %>
+   <!-- Navbar if the user is logged in -->
+   <ul class='navbar-list'>
+      <% if user_signed_in? %>
+
+         <% if controller_name == "topics" && params[:action] == "show" %>
+            <% system = System.find(@topic.system_id) %>
+            <li class="navbar-element left">
+               <%= link_to "← #{system.name} system", system_path(system), :class => 'navbar-link' %>
+            </li>
+
+         <% elsif controller_name == "systems" && params[:action] == "show" %>
+            <li class="navbar-element left">
+               <%= link_to "← Home", systems_path, :class => 'navbar-link'  %>
+            </li>
+
+         <% elsif controller_name == "teaching" && params[:action] == "show" %>
+            <% topic = Topic.find(params[:id]) %>
+            <li class="navbar-element left">
+               <%= link_to "← " + topic.levelNames[params[:forLevel].to_i], topic_path(topic), :class => 'navbar-link' %>
+            </li>
       
-      <div class="navbar-element right">
-         <p><strong><%= link_to "Account", edit_user_registration_path, :class => 'navbar-link' %></strong> |
-      <%= link_to "Logout", destroy_user_session_path, method: :delete, :class => 'navbar-link'  %></p></div>
+         <% elsif !(controller_name == "systems" && params[:action] == "index") &&
+                  !(controller_name == "questions") %>
+            <li class="navbar-element left">
+               <%= link_to "Home", systems_path, :class => 'navbar-link'  %>
+            </li>
 
-<!-- Navbar if the user is not logged in -->
-    <% elsif controller_name != "questions" %>
-      <div class="navbar-element left"> 
-         <p>Operation Anatomy</p> 
+         <% end %>
+
+         <div class="navbar-element-mid-container">
+            <div class="navbar-element-mid">
+               <% if browser.device.mobile? %>
+                  <%= image_tag 'icons/logoNoText.png', :class => 'navbar-icon' %>
+               <% else %>
+                  <%= image_tag 'icons/logoMid.png', :class => 'navbar-icon' %>
+               <% end %>
+            </div>
+         </div>
+
+            
+         <li class='navbar-element right'>
+            <%= link_to image_tag('icons/settings.png', :class => 'navbar-icon', :title => 'Account settings'),         edit_user_registration_path %> 
+         </li>
+         
+         <li class='navbar-element right'>
+            <%= link_to image_tag('icons/help.png', :class => 'navbar-icon', :title => 'Help'), controller: 'static', action: 'about' %>
+         </li>
+
+         <li class="navbar-element right">
+            <%= link_to "Logout", destroy_user_session_path, method: :delete, :class => 'navbar-link' %>
+         </li>
+   
+
+      <!-- Navbar if the user is not logged in -->
+      <% else %>
+
+         <div class="navbar-element-mid-container">
+            <div class="navbar-element-mid">
+               <% if browser.device.mobile? %>
+                  <%= link_to image_tag('icons/logoNoText.png', :class => 'navbar-icon'), "/static/about" %>
+               <% else %>
+                  <%= link_to image_tag('icons/logoMid.png', :class => 'navbar-icon'), "/static/about" %>
+               <% end %>
+            </div>
+         </div>
+         
+         <li class="navbar-element right">
+            <%= link_to "Sign up", new_user_registration_path, :class => 'navbar-link'  %> |
+            <%= link_to "Login", new_user_session_path, :class => 'navbar-link'  %>
+         </li>
+      <% end %>
+   </ul>
+
+
+   <!-- Devise messages here. Integrate into the flash at some point? -->
+   <div>
+         <% if notice %>
+         <p class="alert alert-success"><%= notice %></p>
+         <% end %>
+   </div>
+
+   <!-- Flash messages here -->
+   <div>
+   <% if flash[:successMessage] %>
+      <script> window.alert("<%= flash[:successMessage] %>"); </script>
+   <% end %>
+         <!-- <% flash.each do |name, msg| -%>
+         <%= content_tag :div, msg, class: name %>
+         <% end -%> -->
+   </div>
+
+    <!-- Yield to the main content itself, if devise center the whole lot.  -->
+    <%# byebug %>
+   <% if controller_name == "sessions" %>
+      <div class="mainPage centered">
+      <% else %>
+      <div class="mainPage"> 
+   <% end %>
+      <%= yield %>
+   </div>
+
+  <!-- Footer -->
+  <ul class="footer">
+      <!-- Contact form is available to all -->
+      <li class="navbar-element right">
+         <a href="javascript:showFeedbackForm()">
+            <%= image_tag('icons/contact.png', :class => 'navbar-icon', :title => "Contact") %>
+         </a>
+      </li>
+
+   <% if user_signed_in? %>
+      <!-- Dictionary -->
+      <li class="navbar-element right">
+         <%= link_to image_tag('icons/glossary.png', :class => 'navbar-icon', :title => "Anatomical glossary"), 
+            controller: "dictionary_entries", action: "index" %> 
+      </li>
+
+   <% else %>
+      <li class='navbar-element right'>
+         <%= link_to image_tag('icons/help.png', :class => 'navbar-icon'), root_url + '/static/about' %>
+      </li>  
+
+   <% end %>
+   </ul>
+   
+
+   <%# TODO: feedback form should fire off an email directly? Get rid of bug reports and all that %>
+   <!-- Hidden div for the feedback form -->
+   <div class="feedbackForm" id="feedbackForm">
+      <div class="feedbackFormContent">
+         <h2> Feedback </h2>
+         <%= form_for :feedback, :method => :post, :remote => true, :url => '/feedback' do |f| %>
+            <div><p>
+               What type of feedback is this?
+               <%= select_tag(:tone, options_for_select(["Positive", "Suggestion", "Bug", "Negative"])) %></p>
+               <p> <%= f.text_area :content, placeholder: "Comment" %> </p>
+               <%# # hidden_field_tag :userID, current_user.id %>
+            </div>
+
+            <div> 
+               <%= f.submit "Submit", id: 'feedbackSubmit', onclick: "javascript:hideFeedbackForm()" %>
+               <button onclick="javascript:hideFeedbackForm()">Cancel</button>
+            </div>
+         <% end %>
       </div>
-      <div class="navbar-element right">
-         <p><%= link_to "Sign up", new_user_registration_path, :class => 'navbar-link'  %> |
-      <%= link_to "Login", new_user_session_path, :class => 'navbar-link'  %></p></div>
-    <% end %>
-</div>
+   </div>
 
-<!-- Body of the page -->
-  <body>
-    <!-- Devise messages here. Integrate into the flash at some point? -->
-    <% if notice %>
-      <p class="alert alert-success"><%= notice %></p>
-    <% end %>
-
-    <!-- Flash messages here -->
-    <% flash.each do |name, msg| -%>
-      <%= content_tag :div, msg, class: name %>
-    <% end -%>
-
-    <!-- Yield to the main content itself -->
-    <%= yield %>
   </body>
   
 </html>
