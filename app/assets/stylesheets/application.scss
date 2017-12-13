@@ -9,47 +9,76 @@
  * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
  * files in this directory. Styles in this file should be added after the last require_* statement.
  * It is generally better to create a new file per style scope.
- *
+ * 
  *= require_tree .
  *= require_self
  */
 
-/* default font is Roboto */
+ /* =================================== GLOBAL DIVS ======================================= */
 
-* { 
-    font-family: Roboto, sans-serif; 
+/* Global div that all pages are rendered within */
+
+.mainPage {
+   width: 99%; 
+   margin: auto; 
+   padding-top: 45px; 
 }
 
-/* Fonts */
+.mainPage.centered {
+   text-align: center; 
+   margin-right: auto;
+   margin-left: auto;
+}
+
+/* =================================== FONTS ======================================= */
+
+* { 
+   font-family: Roboto, sans-serif; 
+}
 
 body {
-    text-align: center;
-    text-align: justify;
-    width: 97%; 
-    margin: auto; 
-    margin-top: 60px;     
+   font-size: 14px; 
 }
 
 p {
-    text-align: justify;
-}
-
-figcaption {
-    text-align: center;
-    font-style: italic
-}
-
-figcaption.toggleLabel {
-    font-size: 12px;
-    font-style: normal
+   text-align: justify;
+   width: 100%; 
+   margin: auto;
+   padding-top:10pt; 
+   font-size: 120%; 
+   line-height: 1.5; 
 }
 
 h1 {
+   font-size: 250%; 
+   text-align: center; 
+   font-weight: bolder; 
+}
+
+h2 {
+   font-size: 180%; 
    text-align: center; 
 }
 
-/* Revision pointers, feature boxes etc.  */
+h3 {
+   font-size: 150%; 
+   text-align: center; 
+}
 
+ol {
+   font-size: 120%; 
+   line-height: 1.5; 
+}
+
+/* ===================================== QUESTIONS ====================================== */
+
+.questionArea {
+   width: 500px; 
+   margin-left: auto; 
+   margin-right: auto; 
+}
+
+/* ================================== FEATURE BOXES ======================================= */
 
 /* Feature box base class (for revision pointers, clinical relevance etc) */
 
@@ -60,13 +89,18 @@ $backgroundPosition: left top;
 $backgroundMarginLeft: -26px; 
 $backgroundMarginTop: -99px; 
 
+
+.showHideDiv {
+   display: none; 
+}
+
 // Defines the borders and the area within which the actual content will be displayed. 
 .featureBox {
-   border-top: 45px solid royalblue; 
-   border-bottom: 4px solid royalblue; 
+   border-top: 45px solid rgb(84, 131, 170); 
+   border-bottom: 4px solid rgb(84, 131, 170); 
    margin-top: 40px; 
    padding-top: 30px; 
-   margin-bottom: 30px; 
+   padding-bottom: 10px; 
    padding-left: 20px; 
    padding-right: 20px; 
 }
@@ -127,59 +161,193 @@ $backgroundMarginTop: -99px;
    margin-top: $backgroundMarginTop; 
 }
 
-/* others */
-
-.centered {
-    display: table;
-    margin-right: auto;
-    margin-left: auto;
+.about:before {
+   content: 'About'; 
+   background: image-url('icons/help.png');
+   background-size: $backgroundSize;
+   background-repeat: $backgroundRepeat; 
+   background-position: $backgroundPosition;   
+   margin-left: $backgroundMarginLeft;
+   margin-top: $backgroundMarginTop; 
 }
 
-.navbar {
-    background-color: lightblue; 
-    top: 0;
-    left: 0; 
-    right: 0; 
-    height: 50px; 
-    position: absolute; 
-    padding: 0px;
-    overflow: hidden; 
+// Activate this using the toggleClass line in the showHideDiv function in application.js
+// The message to display then goes in the content field for the :before class (not the special). 
+.about.special:before {
+   content: 'About'; 
 }
 
-.navbar-element {
-    display: inline-block; 
+.quiz:before {
+   content: 'Quizzes'; 
+   background: image-url('icons/quiz.png');
+   background-size: $backgroundSize;
+   background-repeat: $backgroundRepeat; 
+   background-position: $backgroundPosition;   
+   margin-left: $backgroundMarginLeft;
+   margin-top: $backgroundMarginTop; 
 }
 
-.navbar-element.left { 
-    margin-left: 10px;
-    float: left; 
+.diagrams:before {
+   content: 'Diagrams & Videos'; 
+   background: image-url('icons/quiz.png');
+   background-size: $backgroundSize;
+   background-repeat: $backgroundRepeat; 
+   background-position: $backgroundPosition;   
+   margin-left: $backgroundMarginLeft;
+   margin-top: $backgroundMarginTop; 
 }
 
-.navbar-element.right {
-    margin-right: 10px; 
-    float: right; 
+.glossary:before {
+   content: 'Glossary'; 
+   background: image-url('icons/glossary.png');
+   background-size: $backgroundSize;
+   background-repeat: $backgroundRepeat; 
+   background-position: $backgroundPosition;   
+   margin-left: $backgroundMarginLeft;
+   margin-top: $backgroundMarginTop; 
 }
 
-img.displayed {
-    display: block;
-    margin-left: auto;
-    margin-right: auto
+.contact:before {
+   content: 'Contact & Feedback'; 
+   background: image-url('icons/contact.png');
+   background-size: $backgroundSize;
+   background-repeat: $backgroundRepeat; 
+   background-position: $backgroundPosition;   
+   margin-left: $backgroundMarginLeft;
+   margin-top: $backgroundMarginTop; 
 }
 
-/* Feedback form (inc background) */
-div.feedbackForm {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    padding-top: 100px; /* Location of the box */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+
+/* ================================== NAVBAR ======================================= */
+
+$navbar-element-height: 35px; 
+$navbar-element-margin: 7px; 
+
+ul.navbar-list {
+   border-bottom: 7px double rgb(0, 33, 71); 
+   top: -10px;
+   left: 0; 
+   right: 0; 
+   width: 100%; 
+   padding: 0px; 
+   position: absolute; 
+   display: table;    
+   overflow: hidden; 
 }
+
+li.navbar-element {
+   display: table-cell;   
+   vertical-align: middle; 
+   max-width: 250px; 
+   height: $navbar-element-height; 
+   align-content: center; 
+   margin-bottom: 4px; 
+}
+
+.navbar-element-mid-container {
+   position: absolute; 
+   left: 50%;
+}
+
+.navbar-element-mid {
+   position: relative; 
+   left: -50%;
+   top: 2px;  
+   height: $navbar-element-height;  
+}
+
+li.navbar-element.right {
+   margin-right: $navbar-element-margin; 
+   float: right; 
+}
+
+li.navbar-element.left { 
+   margin-left: $navbar-element-margin;
+   float: left; 
+}
+
+img.navbar-icon {
+   max-height: 100%; 
+}
+
+a.navbar-link {
+   line-height: $navbar-element-height
+}
+
+
+.teachingPartialFooter { 
+   width: 100%; 
+   margin: auto; 
+   text-align: center; 
+}
+
+ul.footer {
+   bottom: 60;
+   left: 0; 
+   right: 0; 
+   height: 45px; 
+   width: 100%; 
+   position: relative; 
+   padding: 0px;
+   display: table;    
+   overflow: hidden; 
+}
+
+.footer-element {
+   display: inline-block; 
+}
+
+.footer-element.left {
+   margin-left: 10px; 
+   float: left;
+}
+
+.footer-element.right {
+   margin-right: 10px; 
+   float: right; 
+}
+
+/* ================================ ICON MENUS ===================================== */
+
+table.iconMenu {
+   margin: auto; 
+}
+
+td.iconMenuCell {
+   min-height: 80px; 
+   max-height: 100px; 
+   text-align: center; 
+}
+
+img.menuIcon {
+   display: block;
+   max-height: 200px; 
+   width: auto; 
+   margin-left: auto; 
+   margin-right: auto; 
+   border-collapse: separate; 
+   padding: 10px; 
+}
+
+
+/* ================================ DICTIONARY ==================================== */
+
+table.dictionary {
+   border-collapse: collapse; 
+   // border-spacing: 5px 15px;  
+}
+
+td.dictCell {
+   padding: 10px; 
+   vertical-align: top; 
+   border-bottom: 1px solid #ddd;
+}
+
+th.dictionary {
+   border-bottom: 1px solid #ddd;
+}
+
+/* ================================== FEEDBACK ======================================= */
 
 /* Feedback form content */
 div.feedbackFormContent {
@@ -188,10 +356,6 @@ div.feedbackFormContent {
     padding: 20px;
     border: 1px solid #888;
     width: 40%;
-}
-
-textarea {
-    width: 98%; 
 }
 
 div.feedbackLink {
@@ -209,10 +373,39 @@ div.feedbackLink {
     padding: 5px; */
 }
 
-table {
-    margin: auto;
-    border-spacing: 10px;  
+/* Feedback form (inc background) */
+div.feedbackForm {
+   display: none; /* Hidden by default */
+   position: fixed; /* Stay in place */
+   z-index: 1; /* Sit on top */
+   padding-top: 100px; /* Location of the box */
+   left: 0;
+   top: 0;
+   width: 100%; /* Full width */
+   height: 100%; /* Full height */
+   overflow: auto; /* Enable scroll if needed */
+   background-color: rgb(0,0,0); /* Fallback color */
+   background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
+
+
+// figcaption {
+//     text-align: center;
+//     font-style: italic
+// }
+
+// figcaption.toggleLabel {
+//     font-size: 12px;
+//     font-style: normal
+// }
+
+// img.displayed {
+//    display: block;
+//    margin-left: auto;
+//    margin-right: auto
+// }
+
+
 
 
 
