@@ -1,18 +1,23 @@
-<h1>Anatomical dictionary</h1>
+<h1>Anatomical Glossary</h1>
+<div id="pageDisplayArea">
+   <h3> Did you know? </h3>
+   Whilst browsing this and other teaching pages, any of the words below can be defined simply by highlighting them.  Try it on aorta in this sentence.
+</div>
 
-<h2> Did you know? </h2>
-When on a teaching page, any of the words below can be defined simply by highlighting them.  Try it on "aorta" in the passage below. 
-<p onmouseup=define()>
-The aorta is the largest diameter vessel in the human body. 
-</p>
+<br>
+<br>
 
-<table>
-<tr><th>Entry</th> <th>Definition</th> <th>Example</th></tr>
+<table class="dictionary">
+<tr><th class='dictionary'>Entry</th> <th class='dictionary'>Definition</th> <th class='dictionary'>Example</th></tr>
+<% count = @entries.count %>
+<% index = 0 %>
 <% @entries.each do |e| %>
-    <tr> 
-    <td class="dictCell"> <%= e.title %> </td> 
-    <td class="dictCell" ><%= e.definition %></td> 
-    <td class="dictCell"><%= e.example %></td>
-    </tr>
+   <tr class='dictionary'>
+      <%# classname = index.even? ? "even" : "odd"  %>
+      <td class="dictCell <%# classname %>"> <i><%= e.title %></i> </td> 
+      <td class="dictCell <%# classname %>"> <%= e.definition %>   </td> 
+      <td class="dictCell <%#= classname %>"> <%= e.example %>      </td>
+      <% index = index + 1 %>
+   </tr>
 <% end %>
 </table>
