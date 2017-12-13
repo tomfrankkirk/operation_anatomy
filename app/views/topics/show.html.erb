@@ -1,76 +1,9 @@
-<h1> <%= @topic.display_name %> </h1>
+<h1> <%= @topic.name %> </h1>
 
-<% if @admin %>
-  <%= "Revision mode: #{@revisionMode}" %>
-  <%= "Highest viewed level #{@highestViewed}" %>
-  <%= "Max level #{@maxLevel}" %>
-<% end %>
+<!-- <script> Turbolinks.clearCache(); </script> --> 
 
-<!-- Table for all levels within topic -->
-<table>
-  <tr>
-    <th>Level</th>    <th></th> <th></th>   <th>Previous high score</th>
-        <% if @admin %>
-          <th> Admin teaching access </th>
-          <th> Admin level access </th>
-        <% end %>
-  </tr>
- 
-  <% for i in 1..@topic.numberOfLevels %>
-    <tr>
+<% # TODO: need to add level and revision access control into the icon menu table. %>
+<%= render "shared/iconTable", items: @topic.levelNames, path_root: @pathRoot, path_stubs: @pathStubs, icon_stubs: @iconStubs, secondaryLinks: true %>
 
-      <!-- Normal mode links here (not revision) -->
-        <% if !@revisionMode %>
-        <!-- Level names go here -->
-        <td><%= @topic.levelName(i) %></td>
 
-        <!-- Link to teaching pages goes here -->
-        <td><% if i <= @highestViewed + 1 %>
-          <%= link_to 'Teaching', controller: 'teaching', action: 'show', id: @topic.id, forLevel: i %>
-        <% else %>
-          <small><i> Locked </i></small>
-        <% end %></td>
-        
-        <!-- Questions here, NB we do not want a questions link for level 1 because it is introduction -->
-        <td><% if i != 1 && i <= @maxLevel %>
-          <%= link_to 'Questions', controller: 'questions', action: 'respond', forLevel: i, id: @topic.id  %>
-        <% elsif i != 1 %>
-          <small><i> Locked </i></small>
-        <% end %></td>
 
-        <!-- If a score exists present it -->
-        <td><% if scoreRecord = current_user.getLevelScore(@topic.name, i) %>
-          <% if i != 1 %>
-            <%= "#{scoreRecord["score"]}% on  #{scoreRecord["date"]}" %>
-          <% end %>
-        <% end %></td>
-
-      <!-- Revision mode liks here. -->  
-      <% else %>
-        <!-- Level names go here -->
-        <td><%= @topic.levelName(i) %></td>
-
-        <!-- Link to teaching pages goes here -->
-        <td>
-        <%= link_to 'Teaching', controller: 'teaching', action: 'show', forTopic: @topic.id, forLevel: i %>
-        </td>
-
-        <!-- Questions here, NB we do not want a questions link for level 1 because it is introduction -->
-        <td>
-        <%= link_to 'Questions', controller: 'questions', action: 'respond', forLevel: i, forTopic: @topic.id %>
-        </td>
-
-        <!-- No scores presented in revision mode -->
-        <td></td>
-
-      <% end %>
-
-      <!-- If admin present the extra links to access all teaching/leves (separate to revision mode) -->
-      <% if @admin %>
-        <td><%= link_to 'Teaching', controller: 'teaching', action: 'show', forTopic: @topic.id, forLevel: i %></td>
-        <td><%= link_to 'Questions', controller: 'questions', action: 'respond', forLevel: i, forTopic: @topic.id %></td>
-      <% end %>
-      
-    </tr>
-  <% end %>
-</table>
