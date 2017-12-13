@@ -1,9 +1,11 @@
-<%= @name + ": " + @levelName %>
+<h3>
+   <%= @name + ": " + @levelName.capitalize %>
+</h3>
 
 <br>
 
-<div id="questionArea">
-    <p><%= link_to "Get the first question", remote: true %></p>
+<div id="questionArea" class="questionArea">
+    <p><%= link_to "Get the first question", id: @topic.id, levelName: @levelName, remote: true %></p>
     <p><%= link_to "Go back", "javascript:window.history.back();" %></p>
 </div>
 
