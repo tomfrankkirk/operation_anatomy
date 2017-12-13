@@ -1,1 +1,1 @@
-$("#questionArea").html( "<%= j render partial: 'show', locals: { question: @question }  %>" );
+document.getElementById("questionArea").innerHTML = " <%= j render "show", question: @question %> "
