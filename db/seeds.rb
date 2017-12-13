@@ -12,7 +12,7 @@ System.delete_all
 
 # Seed systems 
 msk = System.create(name: "Musculoskeletal")
-msk.level_names = [ "Introduction", "Bones", "Ligaments & Stablising Structures", "Vasculature", "Innervation", "Movements", "Muscles", "Clinical Relevance" ] 
+msk.level_names = [ "Introduction", "Bones", "Ligaments", "Vasculature", "Innervation", "Movements", "Muscles", "Clinical Relevance" ] 
 msk.save
 
 cv = System.create(name: "Cardiovascular")
@@ -21,7 +21,6 @@ hb = System.create(name: "Hepatobiliary")
 uro = System.create(name: "Urogenital")
 rs = System.create(name: "Respiratory")
 intro = System.create(name: "Introduction to Anatomy")
-
 
 
 # Seeding topics 
