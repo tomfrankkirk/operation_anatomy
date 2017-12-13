@@ -1,9 +1,10 @@
 require 'test_helper'
 
-class SystemsControllerTest < ActionDispatch::IntegrationTest
+class TopicsControllerTest < ActionDispatch::IntegrationTest
 
    # def setup 
    #    Rails.application.load_seed 
    # end       
-   
+
+
 end
