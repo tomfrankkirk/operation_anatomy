@@ -19,9 +19,9 @@ class User < ApplicationRecord
    # track of a user's progress through a set of questions, so the user's state must be 
    # stored within the user object (and so in the database table)
 
-   def prepareQuestions(topicID, level)
+   def prepareQuestions(topicID, levelName)
       self.currentScore = 0 
-      self.questionIDs = Topic.find(topicID).fetchQuestionIDsForLevel(level)
+      self.questionIDs = Topic.find(topicID).fetchQuestionIDsForLevel(levelName)
       self.save
    end
 
@@ -50,13 +50,15 @@ class User < ApplicationRecord
   # End of level. Read the final score (from currentScore), scale to % terms
   # and then save into the scores dict (using a separate function)
 
-  def hasFinishedQuestions(forTopic, forLevel)
-      if forTopic && forLevel
-          topic = Topic.find(forTopic)
-          score = 100 * (self.currentScore) / (topic.numberOfQuestionsInLevel(forLevel))
+  def hasFinishedQuestions(topicID, levelName)
+      
+      if topicID && levelName
+          topic = Topic.find(topicID)
+   
+          score = (100 * (self.currentScore.to_f) / (topic.numberOfQuestionsInLevel(levelName))).round 
           # Check not in revision mode (to save score)
           if !self.revisionMode
-            if !(self.updateLevelScore(topic.name, forLevel, score))
+            if !(self.updateLevelScore(topicID, levelName, score))
                 puts "Warning: did not manage to save score"
             end 
           end   
@@ -77,37 +79,32 @@ class User < ApplicationRecord
    # to a string. ScoreRecord is a struct to store a score-date pair. 
 
    # Update this to go with proper hashes!
-   def updateLevelScore(forTopic, forLevel, score)
-      level = forLevel.to_s.to_i
+   def updateLevelScore(topicID, levelName, score)
+      
+      topic = Topic.find(topicID)
+      levelNumber = topic.levelNumber(levelName)
       scoreRecord = ScoreRecord.new(score, Time.now.strftime("%d/%m/%Y"))
-
+      
       # Check if the hash for this topic already exists
       # If so write the score in using the level as a numeric index into the array
-      if existingTopicHash = self.scoresDictionary[forTopic]
-         if level <= (existingTopicHash.count)
+      if existingTopicHash = self.scoresDictionary[topic.shortName]
 
-            # Is there an existing score, and is this one higher?
-            if existingTopicHash[level - 1] 
-               if existingTopicHash[level - 1]["score"] < score 
-                  existingTopicHash[level - 1] = scoreRecord
-               end 
-            end 
-
-            # No existing score for this level, so append the new score. 
-            elsif level == existingTopicHash.count + 1
-               existingTopicHash.append(scoreRecord)
-            else
-               puts "Warning: could not add score for #{self.id}, requested level #{forLevel} and topic #{forTopic}."
-               puts "Current length of score array for topic #{forTopic} is #{existingTopicHash.count}."
-               puts "Score not recorded."
-               return false
-            end
+         # Is the new score greater than existing? Overwrite if so. 
+         if levelHash = existingTopicHash[levelName]
+            existingTopicHash[levelName] = scoreRecord unless levelHash[:score] >= score 
+               
+         # No existing score for this level, so append the new score. 
+         else 
+            existingTopicHash[levelName] = scoreRecord
+         end 
 
       else
          # No hash: this must be level one for the topic, so generate new array.
          # Add the dummy 100% score record for level 0 in 
+         #FIXME: hardcoded introduction as the level 0 name here. 
          dummy = ScoreRecord.new(score, "NULL")
-         self.scoresDictionary[forTopic] = [dummy, scoreRecord]
+         self.scoresDictionary[topic.shortName] = { "introduction" => dummy }
+         self.scoresDictionary[topic.shortName][levelName] = scoreRecord 
       end
       return true
    end
@@ -115,32 +112,32 @@ class User < ApplicationRecord
     # Get score-date object. Check that the topic hash does actually exist before
     # attempting to access it. If not return nil. Again make sure the inputs are in the right form. 
 
-   def getLevelScore(forTopic, forLevel)
-      level = (forLevel.to_s).to_i
-
+   def getLevelScore(topicID, levelName)
+      topic = Topic.find(topicID)
+      levelNumber = topic.levelNumber(levelName)
+      
       # Check for dodgy inputs. 
-      if level <= 0
-         puts "Warning: 0 or lower level requested for getScore on topic #{level} user #{self.id} object. Nil returned"
+      if levelNumber < 0
+         puts "Warning: 0 or lower level requested for getScore on topic #{topic.shortName} user #{self.id} object. Nil returned"
          return nil 
       end
 
       # Nonnegative inputs - check that the topic hash exists and if so check that the 
       # level has actually been attempted
-      if topicHash = self.scoresDictionary[forTopic]
-         if level <= (topicHash.count)
-            return topicHash[level - 1]
+      if (topicHash = self.scoresDictionary[topic.shortName])
+         if (record = topicHash[levelName])  
+            return record[:score]
          end 
       end 
       return nil 
 
    end
 
-   def getLastScore(forTopic, forLevel)
-      level = forLevel.to_i
-      topicName = Topic.find(forTopic).name 
+   def getLastScore(topicID, levelName)
+      topic = Topic.find(topicID)
 
-      if topicHash = self.scoresDictionary[topicName]
-         return topicHash[forLevel.to_i - 1]
+      if topicHash = self.scoresDictionary[topic.shortName]
+         return topicHash[levelName]
       else 
          return nil 
       end 
@@ -148,20 +145,17 @@ class User < ApplicationRecord
 
     # Check the highest level questions the user should have access to for a particular topic. 
 
-   def checkLevelAccess(forTopic)
+   def checkLevelAccess(topicID)
       # Check what level they have viewed up to first
-      maxView = self.getHighestViewedLevel(forTopic)
+      topic = Topic.find(topicID)
+      maxView = self.getHighestViewedLevel(topicID)
 
-      if existingTopicHash = scoresDictionary[forTopic]
-         # If the most recent score is greater than the threshold, then give access to the next level
-         if existingTopicHash.last["score"] >= Threshold
-               return [existingTopicHash.count + 1, maxView].min
+      if existingTopicHash = scoresDictionary[topic.shortName]  
+         # Find the highest level for which a score has been recorded. 
+         maxLevelScored = existingTopicHash.max_by { |l,r| topic.levelNumber(l) if r["score"] >= Threshold }
+         maxLevelScored = topic.levelNumber(maxLevelScored[0]) 
+         return [maxLevelScored + 1, maxView].min
 
-         # If not, give access to the level that they are currently working on (and have not yet managed
-         # to get above threshold for -> this is simply the count of scores in the topic hash) 
-         else 
-               return [existingTopicHash.count, maxView].min
-         end
       else
          # Topic has not previously been attempted, so return 2 (first available level)
          return [maxView, 2].min 
@@ -172,49 +166,52 @@ class User < ApplicationRecord
    # LEVEL VIEW METHODS
 
    # These methods are used to ensure that the user has actually read things before attempting questions. 
-   def setLevelViewed(forTopic, forLevel)
-      level = forLevel.to_s 
-      if existingHash = levelViewsDictionary[forTopic]
-         existingHash[level] = true 
+   def setLevelViewed(topicID, levelName)
+      topic = Topic.find(topicID)
+
+      if existingHash = levelViewsDictionary[topic.shortName]
+         existingHash[levelName] = true 
       else 
-         levelViewsDictionary[forTopic] = {level => true}
+         levelViewsDictionary[topic.shortName] = {levelName => true}
       end 
       self.save
    end 
 
-    # Warning: this function has an important side-effect. 
-
-   def getHighestViewedLevel(forTopic)
+   # Warning: this function has an important side-effect. ??
+   def getHighestViewedLevel(topicID)
       # If hash exists all good, otherwise return 0 (user should be allowed to read level 1)
-      if existingHash = levelViewsDictionary[forTopic]
+      topic = Topic.find(topicID)
+      if existingHash = levelViewsDictionary[topic.shortName]
          if existingHash == {}
-               return 0
+            return 0
          else 
-               maxLevel = existingHash.max_by { |level, bool| level.to_i }
-               return maxLevel[0].to_i 
+            maxLevel = existingHash.max_by { |levelName, bool| topic.levelNumber(levelName) if bool }
+            return topic.levelNumber(maxLevel[0])
          end 
       else 
          return 0
       end 
    end 
 
-   def softResetLevelViews
-      self.levelViewsDictionary = {}
-      Topic.all.each do |t|
-         t.numberOfLevels.times do |l|
-            if self.getLevelScore(t.name, l + 1) 
-               if (self.getLevelScore(t.name, l + 1))["score"] >= Threshold
-                  puts "Setting level viewed for #{t.name}, level #{l+1}"
-                  self.setLevelViewed(t.name, l + 1)
-               end 
-            end 
-         end 
-      end
-   end 
+   # TODO: these methods need updating with the new hash naming convention. 
 
-   def hardResetLevelViews
-      self.levelViewsDictionary = {}
-   end 
+   # def softResetLevelViews
+   #    self.levelViewsDictionary = {}
+   #    Topic.all.each do |t|
+   #       t.numberOfLevels.times do |l|
+   #          if self.getLevelScore(t.name, l + 1) 
+   #             if (self.getLevelScore(t.name, l + 1))["score"] >= Threshold
+   #                puts "Setting level viewed for #{t.name}, level #{l+1}"
+   #                self.setLevelViewed(t.name, l + 1)
+   #             end 
+   #          end 
+   #       end 
+   #    end
+   # end 
+
+   # def hardResetLevelViews
+   #    self.levelViewsDictionary = {}
+   # end 
 
    def toggleRevisionMode 
       self.revisionMode = !self.revisionMode 
@@ -227,5 +224,14 @@ class User < ApplicationRecord
       end 
       self.save 
    end 
+
+   private 
+
+   # def preprocessLevelArgument(level, topic)
+   #    if level.is_a? Numeric 
+   #       level = topic.getLevelName(level) 
+   #    end 
+   #    return level 
+   # end 
    
 end
