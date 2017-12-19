@@ -191,9 +191,7 @@ class User < ApplicationRecord
       end 
    end 
 
-   # def hardResetLevelViews
-   #    self.levelViewsDictionary = {}
-   # end 
+
 
    def toggleRevisionMode 
       self.revisionMode = !self.revisionMode 
@@ -209,11 +207,5 @@ class User < ApplicationRecord
 
    private 
 
-   # def preprocessLevelArgument(level, topic)
-   #    if level.is_a? Numeric 
-   #       level = topic.getLevelName(level) 
-   #    end 
-   #    return level 
-   # end 
-   
+
 end
