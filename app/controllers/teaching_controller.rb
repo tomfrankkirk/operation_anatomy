@@ -91,13 +91,5 @@ class TeachingController < EndUserController
       end
    end
 
-   #  def expandImagePath(imageName)
-   #      imageName = imageName.sub('/images/', '')
-   #      topic = imageName.slice(0, imageName.index('L')) 
-   #      level = imageName.slice((imageName.index('L') + 1) .. (imageName.index('P' ) - 1) ) 
-   #      part = imageName.slice((imageName.index('P') + 1) .. (imageName.index('Image') - 1) )
-   #      path = 'teaching/' + topic + '/L' + level + '/images/' + imageName
-   #      return path 
-   #  end 
-
+ 
 end
