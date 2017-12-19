@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 
 <!-- OPERATION ANATOMY -->
-<!-- (C) Chris Horton (content) and Tom Kirk (source code) 2016 -->
+<!-- (C) Chris Horton (content) and Tom Kirk (source code) 2016 onwards -->
 <!-- All content contained within is copyright unless explcitly stated otherwise. -->
 <!-- This site is in development and as such is provided as-is with no guarantee as to the accuracy of content. -->
+<!-- Separate licenses apply to the use of the Roboto font (Google) and WebRotate360, these may be viewed at -->
+<!-- /public/RobotoLicense.txt (font) and /public/license.lic (WR360) -->
 
 <html>
-  <head>
-    <title><%= site_name %></title>
-    <%= csrf_meta_tags %>
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-    <%= stylesheet_link_tag    'application', media: 'all', "data-turbolinks-track" => true %>
-    <%= javascript_include_tag 'application', "data-turbolinks-track" => true %>
-    <% if browser.device.mobile? %>
-      <meta name = "viewport" content = "user-scalable=no, initial-scale=1.0, maximum-scale=1.0, width=device-width">
-    <% end %>
 
+  <head>
+      <title><%= site_name %></title>
+      <%= csrf_meta_tags %>
+      <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+      <%= stylesheet_link_tag    'application', media: 'all', "data-turbolinks-track" => true %>
+      <%= javascript_include_tag 'application', "data-turbolinks-track" => true %>
+      <% if browser.device.mobile? %>
+      <meta name = "viewport" content = "user-scalable=no, initial-scale=1.0, maximum-scale=1.0, width=device-width">
+      <% end %>
    </head>
 
 <body>
@@ -151,7 +153,9 @@
    <div class="feedbackForm" id="feedbackForm">
       <div class="feedbackFormContent">
          <h2> Feedback </h2>
-         <%= form_for :feedback, :method => :post, :remote => true, :url => '/feedback' do |f| %>
+
+         <%= form_for :feedback, :method => :post, :remote => true, 
+               :authenticity_token => true, :format => :js, :url => '/feedback' do |f| %>
             <div><p>
                What type of feedback is this?
                <%= select_tag(:tone, options_for_select(["Positive", "Suggestion", "Bug", "Negative"])) %></p>
@@ -161,9 +165,10 @@
 
             <div> 
                <%= f.submit "Submit", id: 'feedbackSubmit', onclick: "javascript:hideFeedbackForm()" %>
-               <button onclick="javascript:hideFeedbackForm()">Cancel</button>
+               <button type=reset onclick="javascript:hideFeedbackForm()">Cancel</button>
             </div>
          <% end %>
+
       </div>
    </div>
 
