@@ -84,28 +84,16 @@ class User < ApplicationRecord
       topic = Topic.find(topicID)
       levelNumber = topic.levelNumber(levelName)
       scoreRecord = ScoreRecord.new(score, Time.now.strftime("%d/%m/%Y"))
-      
-      # Check if the hash for this topic already exists
-      # If so write the score in using the level as a numeric index into the array
-      if existingTopicHash = self.scoresDictionary[topic.shortName]
+      existingTopicHash = self.scoresDictionary[topic.shortName]
+      # Is the new score greater than existing? Overwrite if so. 
+      if levelHash = existingTopicHash[levelName]
+         existingTopicHash[levelName] = scoreRecord unless levelHash[:score] >= score 
+            
+      # No existing score for this level, so append the new score. 
+      else 
+         existingTopicHash[levelName] = scoreRecord
+      end 
 
-         # Is the new score greater than existing? Overwrite if so. 
-         if levelHash = existingTopicHash[levelName]
-            existingTopicHash[levelName] = scoreRecord unless levelHash[:score] >= score 
-               
-         # No existing score for this level, so append the new score. 
-         else 
-            existingTopicHash[levelName] = scoreRecord
-         end 
-
-      else
-         # No hash: this must be level one for the topic, so generate new array.
-         # Add the dummy 100% score record for level 0 in 
-         #FIXME: hardcoded introduction as the level 0 name here. 
-         dummy = ScoreRecord.new(score, "NULL")
-         self.scoresDictionary[topic.shortName] = { "introduction" => dummy }
-         self.scoresDictionary[topic.shortName][levelName] = scoreRecord 
-      end
       return true
    end
 
@@ -143,29 +131,38 @@ class User < ApplicationRecord
       end 
    end 
 
-    # Check the highest level questions the user should have access to for a particular topic. 
-
+   # Check the highest level questions the user should have access to for a particular topic. 
    def checkLevelAccess(topicID)
+      
       # Check what level they have viewed up to first
       topic = Topic.find(topicID)
       maxView = self.getHighestViewedLevel(topicID)
 
       if existingTopicHash = scoresDictionary[topic.shortName]  
          # Find the highest level for which a score has been recorded. 
-         maxLevelScored = existingTopicHash.max_by { |l,r| topic.levelNumber(l) if r["score"] >= Threshold }
+         maxLevelScored = existingTopicHash.max_by { |l,r| if (r["score"] >= Threshold) 
+                                                      then topic.levelNumber(l) else 0 end }
          maxLevelScored = topic.levelNumber(maxLevelScored[0]) 
          return [maxLevelScored + 1, maxView].min
 
       else
-         # Topic has not previously been attempted, so return 2 (first available level)
-         return [maxView, 2].min 
+         return maxView
       end 
    
    end
 
+   # No hash: this must be level one for the topic, so generate new array.
+   def initialiseDummyScoreForTopic(topicID)
+      topic = Topic.find(topicID)
+      dummy = ScoreRecord.new(100, "NULL")
+      self.scoresDictionary[topic.shortName] = { "introduction" => dummy }
+      self.save
+   end 
+
    # LEVEL VIEW METHODS
 
    # These methods are used to ensure that the user has actually read things before attempting questions. 
+   # BIG WARNING: if the topic has never been attempted then this function initialises the dummy score that grants access to level 2 once the introduction has been viewed. 
    def setLevelViewed(topicID, levelName)
       topic = Topic.find(topicID)
 
@@ -174,10 +171,11 @@ class User < ApplicationRecord
       else 
          levelViewsDictionary[topic.shortName] = {levelName => true}
       end 
+      # Topic has not previously been attempted. Intialise the dummy score whilst we're here. 
+      self.initialiseDummyScoreForTopic(topicID)
       self.save
    end 
 
-   # Warning: this function has an important side-effect. ??
    def getHighestViewedLevel(topicID)
       # If hash exists all good, otherwise return 0 (user should be allowed to read level 1)
       topic = Topic.find(topicID)
@@ -192,22 +190,6 @@ class User < ApplicationRecord
          return 0
       end 
    end 
-
-   # TODO: these methods need updating with the new hash naming convention. 
-
-   # def softResetLevelViews
-   #    self.levelViewsDictionary = {}
-   #    Topic.all.each do |t|
-   #       t.numberOfLevels.times do |l|
-   #          if self.getLevelScore(t.name, l + 1) 
-   #             if (self.getLevelScore(t.name, l + 1))["score"] >= Threshold
-   #                puts "Setting level viewed for #{t.name}, level #{l+1}"
-   #                self.setLevelViewed(t.name, l + 1)
-   #             end 
-   #          end 
-   #       end 
-   #    end
-   # end 
 
    # def hardResetLevelViews
    #    self.levelViewsDictionary = {}
