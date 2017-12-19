@@ -7,6 +7,9 @@ Rails.application.routes.draw do
    resources :systems 
 
    # custom routes
+   # Webrotate routes
+   get    '/webrotate/assets/*path',        to: 'teaching#webrotate_assets'
+   get    '/teaching/*path',                to: 'teaching#webrotateXMLJPG'  
    get    '/teaching',                      to: 'teaching#show'
 
    post   '/questions',                     to: 'questions#respond'
@@ -24,9 +27,7 @@ Rails.application.routes.draw do
    get    '/users/adminMode/:id',           to: 'users#adminMode'
    get    '/users/revisionMode/:id',        to: 'users#revisionMode'
 
-   get    '/teaching/*path',                to: 'teaching#webRotateXML'
-   
-   # the root of the app -> straight to all topics
+      # the root of the app -> straight to all topics
    root "systems#index"
 
 end
