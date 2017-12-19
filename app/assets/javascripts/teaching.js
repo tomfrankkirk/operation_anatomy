@@ -1,17 +1,5 @@
 // ================================= DEFINE METHODS ===================================================
 
-// Wrapper function for define functionality. Only passes through if the pageDisplayArea div is present
-// on the current page. 
-function defineWrapper() { 
-   if (document.getElementById("pageDisplayArea")) {
-      console.log("Teaching page! Respond"); 
-      define();      
-
-   } else {
-      console.log("Not a teaching page.");    
-   }
-} 
-
 // Main define function. Fetches the current selection, filters to make sure that it is non-trivial (ie, they
 // did not select a single char or equally a huge passage) and then requests a definition. Upon successful response
 // the selection is cleared via a call to clearSelection(). 

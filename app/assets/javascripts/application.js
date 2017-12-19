@@ -14,23 +14,38 @@
 //= require jquery_ujs
 //= require turbolinks
 //= require imagerotator.js
-//= require jquery-1.8.3.min.js
 //= require_tree . 
 
 // ================================= PAGE LOAD METHODS ================================================
 
-// When page first loads at the site root, attach the wrapper function to selection change events. 
+// When page first loads at the site root, assume no touch until proven otherwise. 
+window.USER_IS_TOUCHING = false; 
+window.EVENT_NAME = 'mouseup'; 
+
+window.addEventListener('touchstart', function onFirstTouch() {
+
+   // Global to hold the state. 
+   window.USER_IS_TOUCHING = true;
+   window.EVENT_NAME = 'touchend'; 
+
+   // Can stop listening now we have a touch
+   console.log("Touch detected, swapping event listeners")
+   window.removeEventListener('touchstart', onFirstTouch, false);
+ }, false);
 
 window.addEventListener("turbolinks:load", function(event) {
    console.log('Turbolinks:load');
+
    if (document.getElementById("pageDisplayArea")) {
       console.log("Teaching page, attaching listener");  
-      document.addEventListener("selectionchange", define); 
+      $("#pageDisplayArea").on(window.EVENT_NAME, define);
 
    } else {
       console.log("Not a teaching page, detach listeners");   
-      document.removeEventListener("selectionchange", define) 
+      $("#pageDisplayArea").off(window.EVENT_NAME, define);
+
    }
+
 });
 
 function sayHello() {
@@ -48,7 +63,6 @@ function showHideDiv(parent) {
          d.style.display = 'none'
     }
 }
-
 
 // ================================= IMAGE METHODS ===================================================
 
