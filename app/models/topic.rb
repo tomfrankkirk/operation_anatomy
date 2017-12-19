@@ -3,7 +3,7 @@ class Topic < ApplicationRecord
     belongs_to :system
     has_many :questions, dependent: :destroy
 
-    def shortName
+   def shortName
       splits = self.name.downcase.split
       if splits[0] == "the"
          return splits[1]
@@ -12,7 +12,8 @@ class Topic < ApplicationRecord
    end 
 
    def shortLevelNames 
-      return System.find(self.system_id).shortLevelNames
+      sys = System.find(self.system_id)
+      return sys.shortLevelNames
    end 
 
    def levelName(forLevel)
@@ -23,61 +24,34 @@ class Topic < ApplicationRecord
       return self.shortLevelNames.find_index(forName) + 1
    end 
 
-    # Method to fetch shuffled array for all questions of a certain level within a topic. 
-    # The IDs are then passed to a User, they will then fetch questions directly from 
-    # the database by using each id as a key. 
+   # Method to fetch shuffled array for all questions of a certain level within a topic. 
+   # The IDs are then passed to a User, they will then fetch questions directly from 
+   # the database by using each id as a key. 
 
-    def fetchQuestionIDsForLevel(levelName)
-        # fetch all questions for the level
-        
-        level = self.levelNumber(levelName)
-        questionObjects = self.questions.where("level = ?", level)
-        questionIDs = []
-        # extract each question ID. 
-        questionObjects.each do |q|
-            questionIDs << q.id
-        end
-        questionIDs.shuffle
-    end
+   def fetchQuestionIDsForLevel(levelName)
+      # fetch all questions for the level
+      
+      level = self.levelNumber(levelName)
+      questionObjects = self.questions.where("level = ?", level)
+      questionIDs = []
+      # extract each question ID. 
+      questionObjects.each do |q|
+         questionIDs << q.id
+      end
+      questionIDs.shuffle
+   end
 
-    def numberOfQuestionsInLevel(levelName)
-        return qs = self.fetchQuestionIDsForLevel(levelName).count 
-    end 
-
-    def numberOfLevels
-      s = System.find(self.system_id)
-      return s.level_names.count
-    end
-
-    def levelNames 
-      return System.find(self.system_id).level_names 
+   def numberOfQuestionsInLevel(levelName)
+      return qs = self.fetchQuestionIDsForLevel(levelName).count 
    end 
 
-    # Go hunting for the level names as a text file. If found, wipe the current ones
-    # and then put in the latest ones. 
-   #  def loadLevelNames
-   #      path = Dir["teaching/#{self.name}/LevelNames.txt"]
-   #      if path
-   #          self.level_names = []
-   #          File.open(path.first) { |f|
-   #              lines = f.read
-   #              lines = lines.split("\n")
-   #              lines.each do |name|
-   #                  self.level_names << name 
-   #              end 
-   #          }
-   #          self.save
-   #      end
-   #  end
+   def numberOfLevels
+      names = self.shortLevelNames
+      return names.count 
+   end
 
-   #  def levelName(forLevel)
-   #      if name = self.level_names[forLevel-1]
-   #          return name 
-   #      else
-   #          return "Level #{forLevel}"
-   #      end 
-   #  end 
-
-
+   def levelNames 
+      return System.find(self.system_id).level_names 
+   end 
 
 end
