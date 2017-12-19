@@ -1,6 +1,5 @@
 <h1> <%= @topic.name %> </h1>
 
-<!-- <script> Turbolinks.clearCache(); </script> --> 
 
 <% # TODO: need to add level and revision access control into the icon menu table. %>
 <%= render "shared/iconTable", items: @topic.levelNames, path_root: @pathRoot, path_stubs: @pathStubs, icon_stubs: @iconStubs, secondaryLinks: true %>
