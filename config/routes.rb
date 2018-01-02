@@ -28,6 +28,6 @@ Rails.application.routes.draw do
    get    '/users/revisionMode/:id',        to: 'users#revisionMode'
 
       # the root of the app -> straight to all topics
-   root "systems#index"
+   root "static#welcome"
 
 end
