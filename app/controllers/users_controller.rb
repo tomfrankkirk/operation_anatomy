@@ -20,23 +20,16 @@ class UsersController < EndUserController
 	end 
 
 	# Logs a feedback record into the db under the users id. Remote method. 
-	def submitFeedback()
-		respond_to do |format|
-			format.js {
-				puts "Feedback submitted"
-				if userID = params[:userID]
-					tone = params[:tone]
-					comment = params[:comment]
-					record = FeedbackRecord.new(tone: tone, comment: comment)
-					record.user_id = userID
-					if tone == "Bug"
-						record.solved = false
-					end 
-					record.save 
-					render :json => {:success => true}
-				end 
-			}
-		end
+   def submitFeedback
+      respond_to do |format|
+         format.js {
+            tone = params[:feedback][:tone]
+            comment = params[:feedback][:comment]
+            userID = params[:userID]
+            ApplicationMailer.send_feedback(tone, comment, userID).deliver 
+            render body: nil 
+         }
+      end 
 	end
 
 	# Function responds to remote JS calls to flip users in and out of admin mode. 

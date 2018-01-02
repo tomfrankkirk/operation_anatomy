@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 
 <!-- OPERATION ANATOMY -->
-<!-- (C) Chris Horton (content) and Tom Kirk (source code) 2016 onwards -->
-<!-- All content contained within is copyright unless explcitly stated otherwise. -->
+<!-- (C) Christopher Horton & Thomas Kirk 2016 onwards -->
+<!-- All content and source code contained within is copyright unless explcitly stated otherwise. -->
 <!-- This site is in development and as such is provided as-is with no guarantee as to the accuracy of content. -->
 <!-- Separate licenses apply to the use of the Roboto font (Google) and WebRotate360, these may be viewed at -->
 <!-- /public/RobotoLicense.txt (font) and /public/license.lic (WR360) -->
@@ -124,53 +124,52 @@
    </div>
 
   <!-- Footer -->
-  <ul class="footer">
-      <!-- Contact form is available to all -->
-      <li class="navbar-element right">
-         <a href="javascript:showFeedbackForm()">
-            <%= image_tag('icons/contact.png', :class => 'navbar-icon', :title => "Contact") %>
-         </a>
-      </li>
+   <ul class="footer">
+      <% if user_signed_in? %>
+         <!-- Contact form  -->
+         <li class="navbar-element right">
+            <a href="javascript:showFeedbackForm()">
+               <%= image_tag('icons/contact.png', :class => 'navbar-icon', :title => "Contact") %>
+            </a>
+         </li>
 
-   <% if user_signed_in? %>
-      <!-- Dictionary -->
-      <li class="navbar-element right">
-         <%= link_to image_tag('icons/glossary.png', :class => 'navbar-icon', :title => "Anatomical glossary"), 
-            controller: "dictionary_entries", action: "index" %> 
-      </li>
+         <!-- Dictionary -->
+         <li class="navbar-element right">
+            <%= link_to image_tag('icons/glossary.png', :class => 'navbar-icon', :title => "Anatomical glossary"), 
+               controller: "dictionary_entries", action: "index" %> 
+         </li>
 
-   <% else %>
-      <li class='navbar-element right'>
-         <%= link_to image_tag('icons/help.png', :class => 'navbar-icon'), root_url + '/static/about' %>
-      </li>  
+         <li class='navbar-element right'>
+            <%= link_to image_tag('icons/help.png', :class => 'navbar-icon'), root_url + '/static/about' %>
+         </li>  
 
-   <% end %>
+      <% end %>
    </ul>
    
+   <% if user_signed_in? %>
+      <!-- Hidden div for the feedback form -->
+      <div class="feedbackForm" id="feedbackForm">
+         <div class="feedbackFormContent">
+            <h2> Feedback </h2>
 
-   <%# TODO: feedback form should fire off an email directly? Get rid of bug reports and all that %>
-   <!-- Hidden div for the feedback form -->
-   <div class="feedbackForm" id="feedbackForm">
-      <div class="feedbackFormContent">
-         <h2> Feedback </h2>
+            <%= form_for :feedback, :method => :post, :remote => true, 
+                  :authenticity_token => true, :format => :js, :url => '/feedback' do |f| %>
+               <div><p>
+                  What type of feedback is this?
+                  <%= f.select(:tone, options_for_select(["Positive", "Suggestion", "Bug", "Negative"])) %></p>
+                  <p> <%= f.text_area :comment, placeholder: "Comment" %> </p>
+                  <%= hidden_field_tag(:userID, current_user.id) %>
+               </div>
 
-         <%= form_for :feedback, :method => :post, :remote => true, 
-               :authenticity_token => true, :format => :js, :url => '/feedback' do |f| %>
-            <div><p>
-               What type of feedback is this?
-               <%= select_tag(:tone, options_for_select(["Positive", "Suggestion", "Bug", "Negative"])) %></p>
-               <p> <%= f.text_area :content, placeholder: "Comment" %> </p>
-               <%# # hidden_field_tag :userID, current_user.id %>
-            </div>
+               <div> 
+                  <%= f.submit "Submit", id: 'feedbackSubmit', onclick: "javascript:hideFeedbackForm()" %>
+                  <button type=reset onclick="javascript:hideFeedbackForm()">Cancel</button>
+               </div>
+            <% end %>
 
-            <div> 
-               <%= f.submit "Submit", id: 'feedbackSubmit', onclick: "javascript:hideFeedbackForm()" %>
-               <button type=reset onclick="javascript:hideFeedbackForm()">Cancel</button>
-            </div>
-         <% end %>
-
+         </div>
       </div>
-   </div>
+   <% end %>
 
   </body>
   
