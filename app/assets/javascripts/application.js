@@ -40,9 +40,14 @@ window.addEventListener("turbolinks:load", function(event) {
       console.log("Teaching page, attaching listener");  
       $("#pageDisplayArea").on(window.EVENT_NAME, define);
 
+   } else if (document.getElementById("demoDisplayArea")) {
+      console.log("Demo page, attaching listener");  
+      $("#demoDisplayArea").on(window.EVENT_NAME, defineDemo);
+
    } else {
-      console.log("Not a teaching page, detach listeners");   
+      console.log("Not a teaching nor demo page, detach listeners");   
       $("#pageDisplayArea").off(window.EVENT_NAME, define);
+      $("#demoDisplayArea").off(window.EVENT_NAME, defineDemo);
 
    }
 

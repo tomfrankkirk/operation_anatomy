@@ -5,39 +5,39 @@
 // the selection is cleared via a call to clearSelection(). 
 function define() {
    
-   // Get the selection. 
-    searchString = getSelectionText();
+// Get the selection. 
+   var searchString = getSelectionText();
 
-    // Is this non-trivial?
-    if (searchString.length > 1 && searchString.length < 35) {
-        console.log("Requesting definition for text: " + searchString)
-        $.ajax({
-            url: 'dictionary_entries/define',
-            data: { searchString: searchString },
-            type: 'GET',
-            dataType: 'json',
-                
-            // Response function: if a defn returned, display via alert(). 
-            success: function (data, textStatus, jqXHR) {
-                if (data.definition != "") {
-                    stringToDisplay = data.title + ": "
-                    stringToDisplay = stringToDisplay + data.definition
-                    if (data.example) {
-                        stringToDisplay = stringToDisplay + "\n\nExample: " + data.example; 
-                    }
-                    window.alert(stringToDisplay); 
-                    // Clear the selection
-                    clearSelection();
-                } else {
-                    console.log("Request returned with nil definition."); 
-                }
-            },
-                
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log("AJAX error requesting definition:" + textStatus); 
-            }
-        }); 
-    }
+   // Is this non-trivial?
+   if (searchString.length > 1 && searchString.length < 35) {
+      console.log("Requesting definition for text: " + searchString)
+      $.ajax({
+         url: 'dictionary_entries/define',
+         data: { searchString: searchString },
+         type: 'GET',
+         dataType: 'json',
+               
+         // Response function: if a defn returned, display via alert(). 
+         success: function (data, textStatus, jqXHR) {
+               if (data.definition != "") {
+                  stringToDisplay = data.title + ": "
+                  stringToDisplay = stringToDisplay + data.definition
+                  if (data.example) {
+                     stringToDisplay = stringToDisplay + "\n\nExample: " + data.example; 
+                  }
+                  window.alert(stringToDisplay); 
+                  // Clear the selection
+                  clearSelection();
+               } else {
+                  console.log("Request returned with nil definition."); 
+               }
+         },
+               
+         error: function (jqXHR, textStatus, errorThrown) {
+               console.log("AJAX error requesting definition:" + textStatus); 
+         }
+      }); 
+   }
 }
 
 // Clear the selection from the window. 
