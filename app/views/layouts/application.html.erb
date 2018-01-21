@@ -23,8 +23,11 @@
 <body>
 
    <!-- Navbar if the user is logged in -->
-   <ul class='navbar-list'>
-      <% if user_signed_in? %>
+   <% if user_signed_in? %>
+      <ul class='navbar-list'
+         <% if current_user.revisionMode %>
+            style='border-bottom: 7px double rgb(190, 0, 0);'
+         <% end %> > 
 
          <% if controller_name == "topics" && params[:action] == "show" %>
             <% system = System.find(@topic.system_id) %>
@@ -40,8 +43,10 @@
          <% elsif controller_name == "teaching" && params[:action] == "show" %>
             <% topic = Topic.find(params[:id]) %>
             <li class="navbar-element left">
-               <%= link_to "← " + topic.levelNames[params[:forLevel].to_i], topic_path(topic), :class => 'navbar-link' %>
+               <%= link_to "← " + params[:forLevel].capitalize, topic_path(topic), :class => 'navbar-link' %>
             </li>
+
+            <%# topic.levelNames[params[:forLevel].to_i] %>
       
          <% elsif !(controller_name == "systems" && params[:action] == "index") &&
                   !(controller_name == "questions") %>
@@ -54,9 +59,9 @@
          <div class="navbar-element-mid-container">
             <div class="navbar-element-mid">
                <% if browser.device.mobile? %>
-                  <%= image_tag 'icons/logoNoText.png', :class => 'navbar-icon' %>
+                  <%= link_to image_tag('icons/logoNoText.png', :class => 'navbar-icon'), systems_path %>
                <% else %>
-                  <%= image_tag 'icons/logoMid.png', :class => 'navbar-icon' %>
+                  <%= link_to image_tag('icons/logoMid.png', :class => 'navbar-icon'), systems_path %>
                <% end %>
             </div>
          </div>
@@ -66,24 +71,25 @@
             <%= link_to image_tag('icons/settings.png', :class => 'navbar-icon', :title => 'Account settings'),         edit_user_registration_path %> 
          </li>
          
+         <!-- 
          <li class='navbar-element right'>
             <%= link_to image_tag('icons/help.png', :class => 'navbar-icon', :title => 'Help'), controller: 'static', action: 'about' %>
-         </li>
+         </li> -->
 
          <li class="navbar-element right">
             <%= link_to "Logout", destroy_user_session_path, method: :delete, :class => 'navbar-link' %>
          </li>
-   
-
-      <!-- Navbar if the user is not logged in -->
-      <% else %>
+      </ul>
+   <!-- Navbar if the user is not logged in -->
+   <% else %>
+      <ul class='navbar-list'>
 
          <div class="navbar-element-mid-container">
             <div class="navbar-element-mid">
                <% if browser.device.mobile? %>
-                  <%= link_to image_tag('icons/logoNoText.png', :class => 'navbar-icon'), "/static/about" %>
+                  <%= link_to image_tag('icons/logoNoText.png', :class => 'navbar-icon'), root_path %>
                <% else %>
-                  <%= link_to image_tag('icons/logoMid.png', :class => 'navbar-icon'), "/static/about" %>
+                  <%= link_to image_tag('icons/logoMid.png', :class => 'navbar-icon'), root_path %>
                <% end %>
             </div>
          </div>
@@ -92,26 +98,29 @@
             <%= link_to "Sign up", new_user_registration_path, :class => 'navbar-link'  %> |
             <%= link_to "Login", new_user_session_path, :class => 'navbar-link'  %>
          </li>
-      <% end %>
-   </ul>
+      </ul>
+   <% end %>
+
 
 
    <!-- Devise messages here. Integrate into the flash at some point? -->
-   <div>
-         <% if notice %>
-         <p class="alert alert-success"><%= notice %></p>
-         <% end %>
-   </div>
+   <% if notice %>
+      <div>
+      <p class="alert alert-success"><%= notice %></p>
+      </div>
+   <% end %>
+
 
    <!-- Flash messages here -->
-   <div>
    <% if flash[:successMessage] %>
+   <div>
       <script> window.alert("<%= flash[:successMessage] %>"); </script>
-   <% end %>
-         <!-- <% flash.each do |name, msg| -%>
-         <%= content_tag :div, msg, class: name %>
-         <% end -%> -->
    </div>
+   <% end %>
+   <!-- <% flash.each do |name, msg| -%>
+   <%= content_tag :div, msg, class: name %>
+   <% end -%> -->
+
 
     <!-- Yield to the main content itself, if devise center the whole lot.  -->
     <%# byebug %>
