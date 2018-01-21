@@ -37,16 +37,12 @@
    font-family: Roboto, sans-serif; 
 }
 
-body {
-   font-size: 14px; 
-}
-
 p {
    text-align: justify;
    width: 100%; 
    margin: auto;
-   padding-top:10pt; 
-   font-size: 120%; 
+   padding-top: 10pt; 
+   font-size: 110%; 
    line-height: 1.5; 
 }
 
@@ -63,12 +59,20 @@ h2 {
 
 h3 {
    font-size: 150%; 
-   text-align: center; 
+}
+
+h4 {
+   font-size: 120%; 
+   margin-bottom: 0pt; 
 }
 
 ol {
    font-size: 120%; 
    line-height: 1.5; 
+}
+
+li {
+   font-size: 100%; 
 }
 
 /* ===================================== QUESTIONS ====================================== */
@@ -225,15 +229,16 @@ $navbar-element-height: 35px;
 $navbar-element-margin: 7px; 
 
 ul.navbar-list {
-   border-bottom: 7px double rgb(0, 33, 71); 
-   top: -10px;
+   position: fixed; 
+   top: 0px;
    left: 0; 
-   right: 0; 
    width: 100%; 
+   height: 40px; 
+   background-color: white; 
+   border-bottom: 7px double rgb(0, 33, 71); 
+   margin-top: 0px; 
+   display: table;   
    padding: 0px; 
-   position: absolute; 
-   display: table;    
-   overflow: hidden; 
 }
 
 li.navbar-element {
@@ -243,11 +248,13 @@ li.navbar-element {
    height: $navbar-element-height; 
    align-content: center; 
    margin-bottom: 4px; 
+   margin-top: 4px; 
 }
 
 .navbar-element-mid-container {
    position: absolute; 
    left: 50%;
+   margin-top: 4px; 
 }
 
 .navbar-element-mid {
