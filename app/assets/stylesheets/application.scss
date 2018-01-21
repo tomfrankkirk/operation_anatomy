@@ -67,12 +67,8 @@ h4 {
 }
 
 ol {
-   font-size: 120%; 
+   font-size: 110%; 
    line-height: 1.5; 
-}
-
-li {
-   font-size: 100%; 
 }
 
 /* ===================================== QUESTIONS ====================================== */
@@ -96,12 +92,12 @@ $backgroundMarginTop: -99px;
 
 
 .showHideDiv {
-   display: none; 
+   display: block; 
 }
 
 // Defines the borders and the area within which the actual content will be displayed. 
 .featureBox {
-   border-top: 45px solid rgb(84, 131, 170); 
+   border-top: 45px solid rgba(60, 143, 216, 0.74); 
    border-bottom: 4px solid rgb(84, 131, 170); 
    margin-top: 40px; 
    padding-top: 30px; 
