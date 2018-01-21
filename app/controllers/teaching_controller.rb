@@ -25,7 +25,6 @@ class TeachingController < EndUserController
          @currentPart = (params[:currentPart]).to_i
          @currentPart = 0 if @currentPart.nil? 
 
-         # byebug
          # Check if this is the end of the level, if so set flag on user object if not admin mode
          if @currentPart + 1 == @paths.count
             current_user.setLevelViewed(@topic.id, @level) unless current_user.inAdminMode
@@ -74,7 +73,7 @@ class TeachingController < EndUserController
       if File.exist? path 
          send_file(path)
       else 
-         head 418 
+         head 418 # teapot!
       end 
    end
 
@@ -87,7 +86,9 @@ class TeachingController < EndUserController
       if paths == []
          return nil 
       else 
-         return paths.sort_by { |s| s[/\d{2,}/].to_i }  # Some funky regexp!
+         return paths.sort_by { |s| 
+            s[ s.rindex('P') + 1 .. s.rindex('.html') - 1 ].to_i
+         }  # Some funky regexp -- disabled and back to simple extract last number between P and html! s[/\d{2,}/].to_i 
       end
    end
 
