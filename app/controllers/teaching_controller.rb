@@ -13,7 +13,18 @@ class TeachingController < EndUserController
    # This method updates teaching page partials via JS ajax requests. 
    # It is also responsible for setting "level viewed" flags when the user reaches end of level 
    def show
-      @topic = Topic.find(params[:id]) 
+
+      # First check if this is a auto-generated path or a manual one written directly into the HTML (a link between pages)
+      # Manual ones are passed around with a "topic" param, whereas auto ones are with an "id" param. 
+      # If manual we load the topic via its name, pop the ID into the params hash and then carry on as normal. 
+      @topic = 
+         if name = params[:topic]
+            Topic.where(name: name).first
+         else 
+            Topic.find(params[:id])
+         end 
+
+      params[:id] = @topic.id unless !params[:id].nil?
       @level = params[:forLevel]
 
       # Attempt to get the paths for this topic and level. Returns nil if files not found. 
@@ -22,8 +33,12 @@ class TeachingController < EndUserController
       if @paths
 
          # Get current part, if it exists, or initialise to 0. 
-         @currentPart = (params[:currentPart]).to_i
-         @currentPart = 0 if @currentPart.nil? 
+         @currentPart = 
+            if p = params[:currentPart]
+               p.to_i 
+            else 
+               0 
+            end 
 
          # Check if this is the end of the level, if so set flag on user object if not admin mode
          if @currentPart + 1 == @paths.count
