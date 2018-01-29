@@ -58,3 +58,12 @@ function getSelectionText() {
         return text;
     } else { return ""; }
 }
+
+
+// ========================= WR360 methods ==============================
+// function initialiseWR360() {
+//    console.log('Found WR360 div, preparing'); 
+//    var viewer = WR360.ImageRotator.Create("wr360Player"); 
+//    viewer.settings.configFileURL = configPath;
+//    viewer.runImageRotator(); 
+// }

@@ -51,6 +51,11 @@ window.addEventListener("turbolinks:load", function(event) {
 
    }
 
+   // if (document.getElementById("wr360Player")) {
+   //    document.getElementById("wr360Player").innerHTML = ""; 
+   //    initialiseWR360(); 
+   // }
+
 });
 
 function sayHello() {
