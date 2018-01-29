@@ -9,10 +9,10 @@
 //
 // Read Sprockets README (https://github.com/rails/sprockets#sprockets-directives) for details
 // about supported directives.
+// require turbolinks
 //
 //= require jquery
 //= require jquery_ujs
-//= require turbolinks
 //= require imagerotator.js
 //= require_tree . 
 
@@ -24,43 +24,15 @@ window.EVENT_NAME = 'mouseup';
 
 window.addEventListener('touchstart', function onFirstTouch() {
 
-   // Global to hold the state. 
-   window.USER_IS_TOUCHING = true;
-   window.EVENT_NAME = 'touchend'; 
+      // Global to hold the state. 
+      window.USER_IS_TOUCHING = true;
+      window.EVENT_NAME = 'touchend'; 
 
-   // Can stop listening now we have a touch
-   console.log("Touch detected, swapping event listeners")
-   window.removeEventListener('touchstart', onFirstTouch, false);
- }, false);
+      // Can stop listening now we have a touch
+      console.log("Touch detected, swapping event listeners")
+      window.removeEventListener('touchstart', onFirstTouch, false);
+   }, false);
 
-window.addEventListener("turbolinks:load", function(event) {
-   console.log('Turbolinks:load');
-
-   if (document.getElementById("pageDisplayArea")) {
-      console.log("Teaching page, attaching listener");  
-      $("#pageDisplayArea").on(window.EVENT_NAME, define);
-
-   } else if (document.getElementById("demoDisplayArea")) {
-      console.log("Demo page, attaching listener");  
-      $("#demoDisplayArea").on(window.EVENT_NAME, defineDemo);
-
-   } else {
-      console.log("Not a teaching nor demo page, detach listeners");   
-      $("#pageDisplayArea").off(window.EVENT_NAME, define);
-      $("#demoDisplayArea").off(window.EVENT_NAME, defineDemo);
-
-   }
-
-   // if (document.getElementById("wr360Player")) {
-   //    document.getElementById("wr360Player").innerHTML = ""; 
-   //    initialiseWR360(); 
-   // }
-
-});
-
-function sayHello() {
-   window.alert("Hello there!"); 
-} 
 
 // =============================== SHOW/HIDE METHODS =============================++==================
    
