@@ -1,5 +1,9 @@
 // ================================= DEFINE METHODS ===================================================
 
+$(window).on( "load", function() {
+   $("#pageDisplayArea").on(window.EVENT_NAME, define);
+} );
+
 // Main define function. Fetches the current selection, filters to make sure that it is non-trivial (ie, they
 // did not select a single char or equally a huge passage) and then requests a definition. Upon successful response
 // the selection is cleared via a call to clearSelection(). 
@@ -59,6 +63,9 @@ function getSelectionText() {
     } else { return ""; }
 }
 
+function sayHallo() {
+   window.alert("Hallo there!");
+} 
 
 // ========================= WR360 methods ==============================
 // function initialiseWR360() {

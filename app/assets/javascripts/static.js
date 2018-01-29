@@ -1,3 +1,7 @@
+$(window).on("load", function () {
+   $("#demoDisplayArea").on(window.EVENT_NAME, defineDemo);
+});
+
 function defineDemo() {
    var selection = getSelectionText(); 
    var title = 'Aorta'; 
