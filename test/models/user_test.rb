@@ -126,28 +126,29 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  test 'Attempt questions and save score' do
-    u = User.new
-    Topic.all.each do |t|
-      (2..t.numberOfLevels).each do |l|
-        name = t.levelName(l)
-        u.setLevelViewed(t.id, name)
-        count = t.fetchQuestionIDsForLevel(name).count
-        u.prepareQuestions(t.id, name)
-        score = 0
+  # test 'Attempt questions and save score' do
+  #   u = User.new
+  #   Topic.all.each do |t|
+  #     (2..t.numberOfLevels).each do |l|
+  #       name = t.levelName(l)
+  #       u.setLevelViewed(t.id, name)
+  #       count = t.fetchQuestionIDsForLevel(name).count
+  #       u.prepareQuestions(t.id, name)
+  #       score = 0
 
-        count.times do |_n|
-          q = Question.find(u.sendNextQuestionID)
-          resp = q.shuffledSolutions.first
-          score += 1 if q.respond(resp)
-          u.incrementCurrentScore if q.respond(resp)
-        end
+  #       count.times do |_n|
+  #         q = Question.find(u.sendNextQuestionID)
+  #         resp = q.shuffledSolutions.first
+  #         score += 1 if q.respond(resp)
+  #         u.incrementCurrentScore if q.respond(resp)
+  #       end
 
-        u.hasFinishedQuestions(t.id, name)
-        score = (100 * (score / count.to_f)).round
+  #       u.hasFinishedQuestions(t.id, name)
+  #       score = (100 * (score / count.to_f)).round
 
-        assert u.getLastScore(t.id, name)[:score] == score, 'Score recorded on the user object does not match calculated score'
-      end
-    end
-  end
+  #       assert u.getLastScore(t.id, name)[:score] == score, 'Score recorded on the user object does not match calculated score'
+  #     end
+  #   end
+  # end
+
 end

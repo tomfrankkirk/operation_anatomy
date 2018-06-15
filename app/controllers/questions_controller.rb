@@ -53,9 +53,9 @@ class QuestionsController < EndUserController
             if !current_user.hasFinishedQuestions(params[:id], params[:levelName])
               flash[:errorMessage] = 'Warning, could not save scores for previous level'
             else
-              score = current_user.getLastScore(params[:id], params[:levelName])
+              score = current_user.getLevelScore(params[:id], params[:levelName])
               message = "You scored #{score['score']}%."
-              message = "Congratulations! You scored #{score['score']}% so the next level is available." unless score['score'] < User::Threshold
+              message = "Congratulations! You scored #{score['score']}% so the next level is available." unless score['score'] < User::THRESHOLD
               flash[:successMessage] = message
               end
           else
