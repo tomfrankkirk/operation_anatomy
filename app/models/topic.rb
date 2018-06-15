@@ -37,9 +37,9 @@ class Topic < ApplicationRecord
   # the database by using each id as a key.
 
   def fetchQuestionIDsForLevel(levelName)
-    # fetch all questions for the level
 
-    level = levelNumber(levelName)
+    # NB indexing adjustment here - questions start at level 2 (1 is intro)
+    level = levelNumber(levelName) + 1
     questionObjects = questions.where('level = ?', level)
     questionIDs = []
     # extract each question ID.

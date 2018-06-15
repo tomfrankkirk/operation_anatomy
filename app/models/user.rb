@@ -165,14 +165,14 @@ class User < ApplicationRecord
   # @param topicID [Int] topic ID 
   # @return [Int] the level, 0 if not topic not attempted. 
   def getHighestLevelPassed(topicID)
-    topic = Topic.find(ID)
+    topic = Topic.find(topicID)
 
     # If scores exist for the topic, pick the max that is above threshold. Otherwise return 0
     if existingTopicHash = scoresDictionary[topic.shortName]
       maxLevelScored = existingTopicHash.max_by do |l, r| 
         r['score'] >= THRESHOLD ? topic.levelNumber(l) : 0
       end
-      return maxLevelScored
+      return topic.levelNumber(maxLevelScored[0])
 
     else
       return 0
@@ -185,19 +185,9 @@ class User < ApplicationRecord
   # @param topicID [Int] the topic ID 
   # @return [Int] level number (0-indexed)
   def checkLevelAccess(topicID)
-
-    topic = Topic.find(topicID)
     maxView = getHighestViewedLevel(topicID)
-
-    if existingTopicHash = scoresDictionary[topic.shortName]
-      # Find the highest level for which a score has been recorded.
-
-      maxLevelScored = topic.levelNumber(maxLevelScored[0])
-      return [maxLevelScored + 1, maxView].min
-
-    else
-      return maxView
-    end
+    maxLevelScored = getHighestLevelPassed(topicID)
+    return [maxLevelScored + 1, maxView].min
   end
 
   # Initialise the level 0 score for the user when first attempting a topic. 
@@ -224,12 +214,12 @@ class User < ApplicationRecord
   def setLevelViewed(topicID, levelName)
     topic = Topic.find(topicID)
     
-    if existingHash = levelViewsDictionary[topic.shortName]
-      existingHash[levelName] = true
+    if existingArray = levelViewsDictionary[topic.shortName]
+      existingArray.append(levelName)
 
       # Topic has not been attempted -> initialse dummy 
     else
-      levelViewsDictionary[topic.shortName] = { levelName => true }
+      levelViewsDictionary[topic.shortName] =  [ levelName ]
       initialiseDummyScoreForTopic(topicID)
     end
 
@@ -244,24 +234,25 @@ class User < ApplicationRecord
     topic = Topic.find(topicID)
 
     # If a view hash exists, use that. 
-    maxLevel = if existingHash = levelViewsDictionary[topic.shortName]
+    if existingArray = levelViewsDictionary[topic.shortName]
 
       # View hash may exist but simply be empty 
-      level = if existingHash.empty?
-        0 
+      if existingArray.empty?
+        return 0 
 
         # If exists, max of viewed levels. 
       else
-        existingHash.max_by do |levelName, bool| 
-          bool ? topic.levelNumber(levelName) : 0
-        end 
+        
+        levelNums = existingArray.map { |name| 
+          topic.levelNumber(name)
+        }
+        return levelNums.max
       end
 
       # If not then return 0 (topic never viewed)
     else
-      0 
+      return 0 
     end
-    return maxLevel
 
   end
 

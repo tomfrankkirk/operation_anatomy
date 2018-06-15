@@ -23,8 +23,9 @@ class TopicTest < ActiveSupport::TestCase
   test 'Each level has questions' do
     Topic.all.each do |t|
       t.numberOfLevels.times do |l|
-        if l != 1
+        if l != 0
           name = t.levelName(l)
+          # byebug
           assert t.fetchQuestionIDsForLevel(name) != [], 'Question IDs should be returned for all levels'
         end
       end
