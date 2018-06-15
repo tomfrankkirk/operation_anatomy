@@ -1,211 +1,199 @@
+# frozen_string_literal: true
+
 class User < ApplicationRecord
-   # Include default devise modules. Others available are:
-   # :confirmable, :lockable, :timeoutable and :omniauthable
-   devise :database_authenticatable, :registerable,
+  # Include default devise modules. Others available are:
+  # :confirmable, :lockable, :timeoutable and :omniauthable
+  devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
 
-   has_many :feedback_records      
-   serialize :questionIDs, Array
+  # Users can submit feedback that is associated to their account.
+  # QuestionIDs (a scratch variable) are stored as a serialized array
+  has_many :feedback_records
+  serialize :questionIDs, Array
 
-   ScoreRecord = Struct.new(:score, :date)
-   Threshold = 65
-      
-   # Prepare an array of question IDs (selected from topic and level) for the User
-   # to respond to. The array will then be stored in the database (as a column on 
-   # the User table), IDs can then be retrieved individually by the user as required. 
-   # The user will use the IDs to fetch questions directly from the database, they
-   # will resond and have their score saved for each question individually. 
-   # Whats the point of all this? No state in Rails! The server will not directly keep
-   # track of a user's progress through a set of questions, so the user's state must be 
-   # stored within the user object (and so in the database table)
+  # Struct definition for storing the score and date of every attempt at a set of questions (within a larger hash)
+  ScoreRecord = Struct.new(:score, :date)
 
-   def prepareQuestions(topicID, levelName)
-      self.currentScore = 0 
-      self.questionIDs = Topic.find(topicID).fetchQuestionIDsForLevel(levelName)
-      self.save
-   end
+  # Score threshold for passing from one level to the next.
+  THRESHOLD = 65
 
-   def sendNextQuestionID()
-      nextq = self.questionIDs.pop
-      self.save
-      return nextq
-   end
-
-  # A simple integer field that is used to record scores whilst a level is in progress. 
-  # The function hasFinishedQuestions() is responsible for reading out this variable, 
-  # calculating a score and then wiping it. 
-
-  def incrementCurrentScore()
-      self.currentScore = self.currentScore + 1
+  # When attempting a set of questions, their IDs will be loaded from the DB, shuffled and then stored in a scratch variable belonging to the user object (questionIDs). The IDs are then popped off one at a time and sent to the user.
+  def prepareQuestions(topicID, levelName)
+    self.currentScore = 0
+    self.questionIDs = Topic.find(topicID).fetchQuestionIDsForLevel(levelName)
+    save
   end
 
-  def wipeCurrentScore()
-      self.currentScore = 0 
+  def sendNextQuestionID
+    nextq = questionIDs.pop
+    save
+    nextq
   end
 
-  def getCurrentScore()
-      return self.currentScore
+  # A simple integer field that is used to record scores whilst a level is in progress.
+  # The function hasFinishedQuestions() is responsible for reading out this variable,
+  # calculating a score and then wiping it.
+
+  def incrementCurrentScore
+    self.currentScore = currentScore + 1
+  end
+
+  def wipeCurrentScore
+    self.currentScore = 0
+  end
+
+  def getCurrentScore
+    currentScore
   end
 
   # End of level. Read the final score (from currentScore), scale to % terms
   # and then save into the scores dict (using a separate function)
 
   def hasFinishedQuestions(topicID, levelName)
-      
-      if topicID && levelName
-          topic = Topic.find(topicID)
-   
-          score = (100 * (self.currentScore.to_f) / (topic.numberOfQuestionsInLevel(levelName))).round 
-          # Check not in revision mode (to save score)
-          if !self.revisionMode
-            if !(self.updateLevelScore(topicID, levelName, score))
-                puts "Warning: did not manage to save score"
-            end 
-          end   
-          self.wipeCurrentScore
-          self.save
-          return true 
-      else 
-          puts "User.hasFinishedQuestions warning: could not save scores, forTopic and forLevel were passed in as nil"
-          return false 
+    if topicID && levelName
+      topic = Topic.find(topicID)
+
+      score = (100 * currentScore.to_f / topic.numberOfQuestionsInLevel(levelName)).round
+      # Check not in revision mode (to save score)
+      unless revisionMode
+        unless updateLevelScore(topicID, levelName, score)
+          puts 'Warning: did not manage to save score'
+        end
       end
+      wipeCurrentScore
+      save
+      true
+    else
+      puts 'User.hasFinishedQuestions warning: could not save scores, forTopic and forLevel were passed in as nil'
+      false
+    end
   end
 
-   # SCORE RECORD METHODS
+  # SCORE RECORD METHODS
 
-   # Write in level scores to the scoresDictionary. 
-   # Generally, forTopic and forLevel are passed in as strings (although they are
-   # active record ids, eg "1" instead of 1), so convert level to an int and topic
-   # to a string. ScoreRecord is a struct to store a score-date pair. 
+  # Write in level scores to the scoresDictionary.
+  # Generally, forTopic and forLevel are passed in as strings (although they are
+  # active record ids, eg "1" instead of 1), so convert level to an int and topic
+  # to a string. ScoreRecord is a struct to store a score-date pair.
 
-   # Update this to go with proper hashes!
-   def updateLevelScore(topicID, levelName, score)
-      
-      topic = Topic.find(topicID)
-      levelNumber = topic.levelNumber(levelName)
-      scoreRecord = ScoreRecord.new(score, Time.now.strftime("%d/%m/%Y"))
-      existingTopicHash = self.scoresDictionary[topic.shortName]
-      # Is the new score greater than existing? Overwrite if so. 
-      if levelHash = existingTopicHash[levelName]
-         existingTopicHash[levelName] = scoreRecord unless levelHash[:score] >= score 
-            
-      # No existing score for this level, so append the new score. 
-      else 
-         existingTopicHash[levelName] = scoreRecord
-      end 
+  # Update this to go with proper hashes!
+  def updateLevelScore(topicID, levelName, score)
+    topic = Topic.find(topicID)
+    levelNumber = topic.levelNumber(levelName)
+    scoreRecord = ScoreRecord.new(score, Time.now.strftime('%d/%m/%Y'))
+    existingTopicHash = scoresDictionary[topic.shortName]
+    # Is the new score greater than existing? Overwrite if so.
+    if levelHash = existingTopicHash[levelName]
+      existingTopicHash[levelName] = scoreRecord unless levelHash[:score] >= score
 
-      return true
-   end
+    # No existing score for this level, so append the new score.
+    else
+      existingTopicHash[levelName] = scoreRecord
+    end
 
-    # Get score-date object. Check that the topic hash does actually exist before
-    # attempting to access it. If not return nil. Again make sure the inputs are in the right form. 
+    true
+  end
 
-   def getLevelScore(topicID, levelName)
-      topic = Topic.find(topicID)
-      levelNumber = topic.levelNumber(levelName)
-      
-      # Check for dodgy inputs. 
-      if levelNumber < 0
-         puts "Warning: 0 or lower level requested for getScore on topic #{topic.shortName} user #{self.id} object. Nil returned"
-         return nil 
+  # Get score-date object. Check that the topic hash does actually exist before
+  # attempting to access it. If not return nil. Again make sure the inputs are in the right form.
+
+  def getLevelScore(topicID, levelName)
+    topic = Topic.find(topicID)
+    levelNumber = topic.levelNumber(levelName)
+
+    # Check for dodgy inputs.
+    if levelNumber < 0
+      puts "Warning: 0 or lower level requested for getScore on topic #{topic.shortName} user #{id} object. Nil returned"
+      return nil
+    end
+
+    # Nonnegative inputs - check that the topic hash exists and if so check that the
+    # level has actually been attempted
+    if (topicHash = scoresDictionary[topic.shortName])
+      if (record = topicHash[levelName])
+        return record[:score]
       end
+    end
+    nil
+  end
 
-      # Nonnegative inputs - check that the topic hash exists and if so check that the 
-      # level has actually been attempted
-      if (topicHash = self.scoresDictionary[topic.shortName])
-         if (record = topicHash[levelName])  
-            return record[:score]
-         end 
-      end 
-      return nil 
+  def getLastScore(topicID, levelName)
+    topic = Topic.find(topicID)
 
-   end
+    if topicHash = scoresDictionary[topic.shortName]
+      return topicHash[levelName]
+    else
+      return nil
+    end
+  end
 
-   def getLastScore(topicID, levelName)
-      topic = Topic.find(topicID)
+  # Check the highest level questions the user should have access to for a particular topic.
+  def checkLevelAccess(topicID)
+    # Check what level they have viewed up to first
+    topic = Topic.find(topicID)
+    maxView = getHighestViewedLevel(topicID)
 
-      if topicHash = self.scoresDictionary[topic.shortName]
-         return topicHash[levelName]
-      else 
-         return nil 
-      end 
-   end 
+    if existingTopicHash = scoresDictionary[topic.shortName]
+      # Find the highest level for which a score has been recorded.
+      maxLevelScored = existingTopicHash.max_by do |l, r|
+        if r['score'] >= Threshold
+                                  then topic.levelNumber(l) else 0 end
+      end
+      maxLevelScored = topic.levelNumber(maxLevelScored[0])
+      return [maxLevelScored + 1, maxView].min
 
-   # Check the highest level questions the user should have access to for a particular topic. 
-   def checkLevelAccess(topicID)
-      
-      # Check what level they have viewed up to first
-      topic = Topic.find(topicID)
-      maxView = self.getHighestViewedLevel(topicID)
+    else
+      return maxView
+    end
+  end
 
-      if existingTopicHash = scoresDictionary[topic.shortName]  
-         # Find the highest level for which a score has been recorded. 
-         maxLevelScored = existingTopicHash.max_by { |l,r| if (r["score"] >= Threshold) 
-                                                      then topic.levelNumber(l) else 0 end }
-         maxLevelScored = topic.levelNumber(maxLevelScored[0]) 
-         return [maxLevelScored + 1, maxView].min
+  # No hash: this must be level one for the topic, so generate new array.
+  def initialiseDummyScoreForTopic(topicID)
+    topic = Topic.find(topicID)
+    dummy = ScoreRecord.new(100, 'NULL')
+    scoresDictionary[topic.shortName] = { 'introduction' => dummy }
+    save
+  end
 
+  # LEVEL VIEW METHODS
+
+  # These methods are used to ensure that the user has actually read things before attempting questions.
+  # BIG WARNING: if the topic has never been attempted then this function initialises the dummy score that grants access to level 2 once the introduction has been viewed.
+  def setLevelViewed(topicID, levelName)
+    topic = Topic.find(topicID)
+
+    if existingHash = levelViewsDictionary[topic.shortName]
+      existingHash[levelName] = true
+    else
+      levelViewsDictionary[topic.shortName] = { levelName => true }
+    end
+    # Topic has not previously been attempted. Intialise the dummy score whilst we're here.
+    initialiseDummyScoreForTopic(topicID)
+    save
+  end
+
+  def getHighestViewedLevel(topicID)
+    # If hash exists all good, otherwise return 0 (user should be allowed to read level 1)
+    topic = Topic.find(topicID)
+    if existingHash = levelViewsDictionary[topic.shortName]
+      if existingHash == {}
+        return 0
       else
-         return maxView
-      end 
-   
-   end
+        maxLevel = existingHash.max_by { |levelName, bool| topic.levelNumber(levelName) if bool }
+        return topic.levelNumber(maxLevel[0])
+      end
+    else
+      return 0
+    end
+  end
 
-   # No hash: this must be level one for the topic, so generate new array.
-   def initialiseDummyScoreForTopic(topicID)
-      topic = Topic.find(topicID)
-      dummy = ScoreRecord.new(100, "NULL")
-      self.scoresDictionary[topic.shortName] = { "introduction" => dummy }
-      self.save
-   end 
+  def toggleRevisionMode
+    self.revisionMode = !revisionMode
+    save
+  end
 
-   # LEVEL VIEW METHODS
-
-   # These methods are used to ensure that the user has actually read things before attempting questions. 
-   # BIG WARNING: if the topic has never been attempted then this function initialises the dummy score that grants access to level 2 once the introduction has been viewed. 
-   def setLevelViewed(topicID, levelName)
-      topic = Topic.find(topicID)
-
-      if existingHash = levelViewsDictionary[topic.shortName]
-         existingHash[levelName] = true 
-      else 
-         levelViewsDictionary[topic.shortName] = {levelName => true}
-      end 
-      # Topic has not previously been attempted. Intialise the dummy score whilst we're here. 
-      self.initialiseDummyScoreForTopic(topicID)
-      self.save
-   end 
-
-   def getHighestViewedLevel(topicID)
-      # If hash exists all good, otherwise return 0 (user should be allowed to read level 1)
-      topic = Topic.find(topicID)
-      if existingHash = levelViewsDictionary[topic.shortName]
-         if existingHash == {}
-            return 0
-         else 
-            maxLevel = existingHash.max_by { |levelName, bool| topic.levelNumber(levelName) if bool }
-            return topic.levelNumber(maxLevel[0])
-         end 
-      else 
-         return 0
-      end 
-   end 
-
-
-
-   def toggleRevisionMode 
-      self.revisionMode = !self.revisionMode 
-      self.save      
-   end 
-
-   def toggleAdminMode 
-      if self.isAdmin
-         self.inAdminMode = !self.inAdminMode 
-      end 
-      self.save 
-   end 
-
-   private 
-
-
+  def toggleAdminMode
+    self.inAdminMode = !inAdminMode if isAdmin
+    save
+  end
 end

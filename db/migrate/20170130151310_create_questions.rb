@@ -1,5 +1,6 @@
-class CreateQuestions < ActiveRecord::Migration[5.0]
+# frozen_string_literal: true
 
+class CreateQuestions < ActiveRecord::Migration[5.0]
   def change
     create_table :questions do |t|
       t.column :number, :integer
@@ -10,7 +11,5 @@ class CreateQuestions < ActiveRecord::Migration[5.0]
       t.belongs_to :topic, index: true
       t.timestamps
     end
-
   end
-
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateDictionaryEntries < ActiveRecord::Migration[5.0]
   def change
     create_table :dictionary_entries do |t|
@@ -7,7 +9,7 @@ class CreateDictionaryEntries < ActiveRecord::Migration[5.0]
 
       t.timestamps
     end
-    
+
     add_index :dictionary_entries, :title
   end
 end

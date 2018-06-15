@@ -1,7 +1,7 @@
+# frozen_string_literal: true
+
 module ApplicationHelper
-
-   def site_name 
-      return "Operation Anatomy"
-   end 
-
+  def site_name
+    'Operation Anatomy'
+  end
 end

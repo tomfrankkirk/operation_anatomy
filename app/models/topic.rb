@@ -1,57 +1,64 @@
+# frozen_string_literal: true
+
 class Topic < ApplicationRecord
-    serialize :level_names, Array
-    belongs_to :system
-    has_many :questions, dependent: :destroy
+  serialize :level_names, Array
+  belongs_to :system
+  has_many :questions, dependent: :destroy
 
-   def shortName
-      splits = self.name.downcase.split
-      if splits[0] == "the"
-         return splits[1]
-      end 
-      return splits[0]
-   end 
 
-   def shortLevelNames 
-      sys = System.find(self.system_id)
-      return sys.shortLevelNames
-   end 
+  def shortName
+    splits = name.downcase.split
+    return splits[1] if splits[0] == 'the'
+    splits[0]
+  end
 
-   def levelName(forLevel)
-      return self.shortLevelNames[forLevel - 1]
-   end
+  def shortLevelNames
+    sys = System.find(system_id)
+    sys.shortLevelNames
+  end
 
-   def levelNumber(forName)
-      return self.shortLevelNames.find_index(forName) + 1
-   end 
+  
+  # Yard demo here
+  # @param forLevel [Int] the number of the level
+  # @return [String] the level name. 
+  def levelName(forLevel)
+    shortLevelNames[forLevel]
+  end
 
-   # Method to fetch shuffled array for all questions of a certain level within a topic. 
-   # The IDs are then passed to a User, they will then fetch questions directly from 
-   # the database by using each id as a key. 
+  # Another demo here
+  # @param [String] 
+  # @return [Int] some return 
+  def levelNumber(forName)
+    shortLevelNames.find_index(forName)
+  end
 
-   def fetchQuestionIDsForLevel(levelName)
-      # fetch all questions for the level
-      
-      level = self.levelNumber(levelName)
-      questionObjects = self.questions.where("level = ?", level)
-      questionIDs = []
-      # extract each question ID. 
-      questionObjects.each do |q|
-         questionIDs << q.id
-      end
-      questionIDs.shuffle
-   end
+  # Method to fetch shuffled array for all questions of a certain level within a topic.
+  # The IDs are then passed to a User, they will then fetch questions directly from
+  # the database by using each id as a key.
 
-   def numberOfQuestionsInLevel(levelName)
-      return qs = self.fetchQuestionIDsForLevel(levelName).count 
-   end 
+  def fetchQuestionIDsForLevel(levelName)
+    # fetch all questions for the level
 
-   def numberOfLevels
-      names = self.shortLevelNames
-      return names.count 
-   end
+    level = levelNumber(levelName)
+    questionObjects = questions.where('level = ?', level)
+    questionIDs = []
+    # extract each question ID.
+    questionObjects.each do |q|
+      questionIDs << q.id
+    end
+    questionIDs.shuffle
+  end
 
-   def levelNames 
-      return System.find(self.system_id).level_names 
-   end 
+  def numberOfQuestionsInLevel(levelName)
+    qs = fetchQuestionIDsForLevel(levelName).count
+  end
 
+  def numberOfLevels
+    names = shortLevelNames
+    names.count
+  end
+
+  def levelNames
+    System.find(system_id).level_names
+  end
 end

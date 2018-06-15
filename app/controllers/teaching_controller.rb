@@ -1,111 +1,109 @@
+# frozen_string_literal: true
+
 class TeachingController < EndUserController
+  respond_to :html, :xml, :jpg, :js
 
-   respond_to :html, :xml, :jpg, :js
+  def fetchImage
+    fullPathString = expandImagePath(params[:id])
+    path = Dir[fullPathString + '.*']
+    img = File.open(path.first)
+    send_data(img.read)
+    img.close
+  end
 
-   def fetchImage
-      fullPathString = expandImagePath(params[:id]) 
-      path = Dir[fullPathString + ".*"]
-      img = File.open(path.first)
-      send_data(img.read)
-      img.close
-   end
+  # This method updates teaching page partials via JS ajax requests.
+  # It is also responsible for setting "level viewed" flags when the user reaches end of level
+  def show
+    # First check if this is a auto-generated path or a manual one written directly into the HTML (a link between pages)
+    # Manual ones are passed around with a "topic" param, whereas auto ones are with an "id" param.
+    # If manual we load the topic via its name, pop the ID into the params hash and then carry on as normal.
+    @topic =
+      if name = params[:topic]
+        Topic.where(name: name).first
+      else
+        Topic.find(params[:id])
+       end
 
-   # This method updates teaching page partials via JS ajax requests. 
-   # It is also responsible for setting "level viewed" flags when the user reaches end of level 
-   def show
+    params[:id] = @topic.id if params[:id].nil?
+    @level = params[:forLevel]
 
-      # First check if this is a auto-generated path or a manual one written directly into the HTML (a link between pages)
-      # Manual ones are passed around with a "topic" param, whereas auto ones are with an "id" param. 
-      # If manual we load the topic via its name, pop the ID into the params hash and then carry on as normal. 
-      @topic = 
-         if name = params[:topic]
-            Topic.where(name: name).first
-         else 
-            Topic.find(params[:id])
-         end 
+    # Attempt to get the paths for this topic and level. Returns nil if files not found.
+    @paths = teachingPagePaths(@topic.shortName, @level)
 
-      params[:id] = @topic.id unless !params[:id].nil?
-      @level = params[:forLevel]
+    if @paths
 
-      # Attempt to get the paths for this topic and level. Returns nil if files not found. 
-      @paths = teachingPagePaths(@topic.shortName, @level)
+      # Get current part, if it exists, or initialise to 0.
+      @currentPart =
+        if p = params[:currentPart]
+          p.to_i
+        else
+          0
+         end
 
-      if @paths
-
-         # Get current part, if it exists, or initialise to 0. 
-         @currentPart = 
-            if p = params[:currentPart]
-               p.to_i 
-            else 
-               0 
-            end 
-
-         # Check if this is the end of the level, if so set flag on user object if not admin mode
-         if @currentPart + 1 == @paths.count
-            current_user.setLevelViewed(@topic.id, @level) unless current_user.inAdminMode
-         end 
-
-         # Retrieve the part from the paths array. 
-         @path = @paths[@currentPart]
-         @flatHTMLString = nil 
-
-         if @path.include? '.erb'
-            # We need to prepare the erb here...
-            # Define the local vars here.... 
-            @rawStr = File.read(@path)
-            template = ERB.new(@rawStr)
-            @flatHTMLString = template.result(binding)
-         else 
-            @flatHTMLString = File.read(@path)
-         end 
-
-      else 
-
-         # If unsuccessful then render the error message
-         render 'error'
-      end        
-
-      respond_to do |format| 
-         format.html
-         format.js 
+      # Check if this is the end of the level, if so set flag on user object if not admin mode
+      if @currentPart + 1 == @paths.count
+        current_user.setLevelViewed(@topic.id, @level) unless current_user.inAdminMode
       end
-   end
 
-   def webrotateXMLJPG
-      # What kind of path are we working with?
-      path = params[:path]
-      path = "teaching/" + params[:path] + ".#{params[:format]}"
-      if File.exist? path 
-         send_file(path)
-      else 
-         render :status => 418
-      end 
-   end 
+      # Retrieve the part from the paths array.
+      @path = @paths[@currentPart]
+      @flatHTMLString = nil
 
-   def webrotate_assets
-      path = params[:path]    
-      path = "vendor/assets/webrotate/" + path + ".#{params[:format]}"
-      if File.exist? path 
-         send_file(path)
-      else 
-         head 418 # teapot!
-      end 
-   end
-
-   private
-
-   # Search for both HTML and ERB pages at the given location. 
-   def teachingPagePaths(topicName, forLevel)
-      pathStr = 'teaching/' + topicName + '/' + forLevel + '/*'
-      paths = Dir[pathStr].select { |f| File.file? f }      
-      if paths == []
-         return nil 
-      else 
-         return paths.sort_by { |s| 
-            s[ s.rindex('P') + 1 .. s.rindex('.html') - 1 ].to_i
-         }  # Some funky regexp -- disabled and back to simple extract last number between P and html! s[/\d{2,}/].to_i 
+      if @path.include? '.erb'
+        # We need to prepare the erb here...
+        # Define the local vars here....
+        @rawStr = File.read(@path)
+        template = ERB.new(@rawStr)
+        @flatHTMLString = template.result(binding)
+      else
+        @flatHTMLString = File.read(@path)
       end
-   end
 
- 
+    else
+
+      # If unsuccessful then render the error message
+      render 'error'
+    end
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
+  end
+
+  def webrotateXMLJPG
+    # What kind of path are we working with?
+    path = params[:path]
+    path = 'teaching/' + params[:path] + ".#{params[:format]}"
+    if File.exist? path
+      send_file(path)
+    else
+      render status: 418
+    end
+  end
+
+  def webrotate_assets
+    path = params[:path]
+    path = 'vendor/assets/webrotate/' + path + ".#{params[:format]}"
+    if File.exist? path
+      send_file(path)
+    else
+      head 418 # teapot!
+    end
+  end
+
+  private
+
+  # Search for both HTML and ERB pages at the given location.
+  def teachingPagePaths(topicName, forLevel)
+    pathStr = 'teaching/' + topicName + '/' + forLevel + '/*'
+    paths = Dir[pathStr].select { |f| File.file? f }
+    if paths == []
+      return nil
+    else
+      return paths.sort_by do |s|
+        s[s.rindex('P') + 1..s.rindex('.html') - 1].to_i
+      end # Some funky regexp -- disabled and back to simple extract last number between P and html! s[/\d{2,}/].to_i
+    end
+  end
 end
