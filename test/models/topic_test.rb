@@ -20,6 +20,14 @@ class TopicTest < ActiveSupport::TestCase
     end
   end
 
+  test 'Each topic has levels' do 
+    Topic.all.each do |t|
+      t.numberOfLevels.times do |l|
+        assert !(t.levelName(l).nil?) 
+      end 
+    end 
+  end 
+
   test 'Each level has questions' do
     Topic.all.each do |t|
       t.numberOfLevels.times do |l|

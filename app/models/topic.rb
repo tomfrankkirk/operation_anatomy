@@ -5,60 +5,69 @@ class Topic < ApplicationRecord
   belongs_to :system
   has_many :questions, dependent: :destroy
 
-
+  # Return the short topic name, one word each, dropping "the" where necessary
+  # 
+  # @return [String] topic short name
   def shortName
     splits = name.downcase.split
     return splits[1] if splits[0] == 'the'
     splits[0]
   end
 
+  # Why is this defined on a system and not the topic itself?
+  # 
+  # @return [[String]]
   def shortLevelNames
     sys = System.find(system_id)
     sys.shortLevelNames
   end
 
-  
-  # Yard demo here
-  # @param forLevel [Int] the number of the level
-  # @return [String] the level name. 
+  # Convert level number to short level name 
+  # 
+  # @param forLevel [Int]
   def levelName(forLevel)
     shortLevelNames[forLevel]
   end
 
-  # Another demo here
-  # @param [String] 
-  # @return [Int] some return 
+  # Convert between level name and number 
+  # 
+  # @param forName [String]
   def levelNumber(forName)
     shortLevelNames.find_index(forName)
   end
 
-  # Method to fetch shuffled array for all questions of a certain level within a topic.
-  # The IDs are then passed to a User, they will then fetch questions directly from
-  # the database by using each id as a key.
-
+  # Load and shuffle the questions for the given level.
+  # 
+  # @param levelName [String] level name of questions (not number)
+  # @return questionIDs [[Int]] array of shuffled question IDs 
   def fetchQuestionIDsForLevel(levelName)
 
     # NB indexing adjustment here - questions start at level 2 (1 is intro)
     level = levelNumber(levelName) + 1
     questionObjects = questions.where('level = ?', level)
-    questionIDs = []
-    # extract each question ID.
-    questionObjects.each do |q|
-      questionIDs << q.id
-    end
+    questionIDs = questionObjects.map { |q| q.id }
     questionIDs.shuffle
   end
 
+  # Count the questions in a given level 
+  # 
+  # @param levelName [String] the short name of the level 
   def numberOfQuestionsInLevel(levelName)
     qs = fetchQuestionIDsForLevel(levelName).count
   end
 
+  # Number of levels in topic 
   def numberOfLevels
     names = shortLevelNames
     names.count
   end
 
+  # Level names are common to all topics within a system so they are stored
+  # at that level. 
+  # 
+  # @return [[String]]
   def levelNames
     System.find(system_id).level_names
   end
+
 end

@@ -4,17 +4,26 @@ class System < ApplicationRecord
   has_many :topics
   serialize :level_names, Array
 
-  def shortNameForLevel(_k)
-    long = level_names
-    long.split[0]
-  end
+  # Deprecated
+  # def shortNameForLevel(levelNumber)
+  #   long = level_names[k]
+  #   long.split[0]
+  # end
 
+  # Return all short level names. Drop leading "the" if present
+  # 
+  # @return [[String]]
   def shortLevelNames
     longs = level_names
-    longs.map { |s| s.split[0].downcase }
+    longs.map { |s| 
+      down = s.downcase.split 
+      down[0] == 'the' ? down[1] : down[0]
+    }
   end
 
+  # Return short system name 
   def shortName
     name.split[0].downcase
   end
+
 end
