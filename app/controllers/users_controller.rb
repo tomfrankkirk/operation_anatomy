@@ -33,8 +33,8 @@ class UsersController < EndUserController
     end
    end
 
-  # Function responds to remote JS calls to flip users in and out of admin mode.
-  # Then sends a message to the current page to refresh
+  # Respond to remote JS call to flip the user in and out of admin mode. 
+  # Then force reload 
   def adminMode
     current_user.toggleAdminMode
     respond_to do |format|
@@ -44,6 +44,8 @@ class UsersController < EndUserController
     end
   end
 
+  # Respond to remote JS call to flip the user in and out of revision mode. 
+  # Then force reload 
   def revisionMode
     current_user.toggleRevisionMode
     respond_to do |format|
