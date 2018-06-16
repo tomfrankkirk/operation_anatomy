@@ -3,6 +3,7 @@
 class TeachingController < EndUserController
   respond_to :html, :xml, :jpg, :js
 
+  # Helper method to open and send images embedded within teaching pages 
   def fetchImage
     fullPathString = expandImagePath(params[:id])
     path = Dir[fullPathString + '.*']
@@ -11,47 +12,40 @@ class TeachingController < EndUserController
     img.close
   end
 
-  # This method updates teaching page partials via JS ajax requests.
-  # It is also responsible for setting "level viewed" flags when the user reaches end of level
+  # Update the partial view on a teaching page via JS. When last page is 
+  # reached set the appropriate level viewed flag. 
   def show
-    # First check if this is a auto-generated path or a manual one written directly into the HTML (a link between pages)
-    # Manual ones are passed around with a "topic" param, whereas auto ones are with an "id" param.
-    # If manual we load the topic via its name, pop the ID into the params hash and then carry on as normal.
-    @topic =
-      if name = params[:topic]
-        Topic.where(name: name).first
-      else
-        Topic.find(params[:id])
-       end
-
-    params[:id] = @topic.id if params[:id].nil?
-    @level = params[:forLevel]
+    # First check if this is a  auto-generated path or a manual one written
+    # directly into the HTML (a link between pages). Manual ones are passed 
+    # around with a "topic" param, whereas auto ones are with an "id" param.
+    # If manual we load the topic via its name, pop the ID into the params hash 
+    # and then carry on as normal.
+    if name = params[:topic]
+      @topic = Topic.where(name: name).first 
+    else
+      @topic = Topic.find(params[:id])
+    end 
 
     # Attempt to get the paths for this topic and level. Returns nil if files not found.
+    params[:id] = @topic.id
+    @level = params[:forLevel]
     @paths = teachingPagePaths(@topic.shortName, @level)
 
     if @paths
 
       # Get current part, if it exists, or initialise to 0.
-      @currentPart =
-        if p = params[:currentPart]
-          p.to_i
-        else
-          0
-         end
+      @currentPart = (p = params[:currentPart]) ? p.to_i : 0 
+      @path = @paths[@currentPart]
 
-      # Check if this is the end of the level, if so set flag on user object if not admin mode
+      # If this is the last page of the level, set the level as viewed
       if @currentPart + 1 == @paths.count
-        current_user.setLevelViewed(@topic.id, @level) unless current_user.inAdminMode
+        current_user.setLevelViewed(@topic.id, @level) unless (current_user.inAdminMode || current_user.inRevisionMode) 
       end
 
-      # Retrieve the part from the paths array.
-      @path = @paths[@currentPart]
-      @flatHTMLString = nil
-
+      # Behaviour here depends if the page includes a hard-coded link to another
+      # teaching page (flagged via the .erb extension). If so we preprocess to 
+      # generate the link dynamically. 
       if @path.include? '.erb'
-        # We need to prepare the erb here...
-        # Define the local vars here....
         @rawStr = File.read(@path)
         template = ERB.new(@rawStr)
         @flatHTMLString = template.result(binding)
@@ -59,9 +53,8 @@ class TeachingController < EndUserController
         @flatHTMLString = File.read(@path)
       end
 
+    # If unsuccessful then render the error message
     else
-
-      # If unsuccessful then render the error message
       render 'error'
     end
 
@@ -71,24 +64,26 @@ class TeachingController < EndUserController
     end
   end
 
+  # Send XML or JPG files for webrotate. Requests are caught and
+  # routed to their location in the teaching folder. 
   def webrotateXMLJPG
-    # What kind of path are we working with?
     path = params[:path]
     path = 'teaching/' + params[:path] + ".#{params[:format]}"
     if File.exist? path
       send_file(path)
     else
-      render status: 418
+      render status: 418  # If fail then return coffee pot status 
     end
   end
 
+  # Send webrotate assets. 
   def webrotate_assets
     path = params[:path]
     path = 'vendor/assets/webrotate/' + path + ".#{params[:format]}"
     if File.exist? path
       send_file(path)
     else
-      head 418 # teapot!
+      head 418 # If fail then return coffee pot status 
     end
   end
 
