@@ -17,6 +17,8 @@ class User < ApplicationRecord
   # Score threshold for passing from one level to the next.
   THRESHOLD = 65
 
+  # Question methods -----------------------------------------------------------
+
   # Load and shuffle the question IDs for the topic/level name and store them in the user's questionIDs scratch variable. 
   # 
   # @param topicID [Int] the ID for topic 
@@ -35,21 +37,6 @@ class User < ApplicationRecord
     nextq = questionIDs.pop
     self.save
     return nextq
-  end
-
-  # Increment the users score for the current set of questions 
-  def incrementCurrentScore
-    self.currentScore = currentScore + 1
-  end
-
-  # Reset user's current score 
-  def wipeCurrentScore
-    self.currentScore = 0
-  end
-
-  # Return user's current score 
-  def getCurrentScore
-    return currentScore
   end
 
   # At the end of a level, convert the user's current score to a percentage and save into their score record. 
@@ -84,12 +71,24 @@ class User < ApplicationRecord
 
   # Score methods --------------------------------------------------------------
 
-  # Write in level scores to the scoresDictionary.
-  # Generally, forTopic and forLevel are passed in as strings (although they are
-  # active record ids, eg "1" instead of 1), so convert level to an int and topic
-  # to a string. ScoreRecord is a struct to store a score-date pair.
+  # Increment the users score for the current set of questions 
+  def incrementCurrentScore
+    self.currentScore = currentScore + 1
+  end
+
+  # Reset user's current score 
+  def wipeCurrentScore
+    self.currentScore = 0
+  end
+
+  # Return user's current score 
+  def getCurrentScore
+    return currentScore
+  end
 
   # Update the score record for a particular topic and level. 
+  # Scores are recorded in the dict with a short level name string
+  # as the key (not number)
   # 
   # @param topicID [Int] the topic ID 
   # @param levelName [String] short level name 
@@ -99,7 +98,6 @@ class User < ApplicationRecord
 
     # Load topic and level number, prepare score record object 
     topic = Topic.find(topicID)
-    levelNumber = topic.levelNumber(levelName)
     scoreRecord = ScoreRecord.new(score, Time.now.strftime('%d/%m/%Y'))
 
     # Check for an existing score hash for this topic, which should exist. 
@@ -129,13 +127,6 @@ class User < ApplicationRecord
   # @return [Int?] score, or nil if it does not exist. 
   def getLevelScore(topicID, levelName)
     topic = Topic.find(topicID)
-    levelNumber = topic.levelNumber(levelName)
-
-    # Check for dodgy inputs.
-    if levelNumber < 0
-      puts "Warning: 0 or lower level requested for getScore on topic #{topic.shortName} user #{id} object. Nil returned"
-      return nil
-    end
 
     # Check the level has been attempted, return score if so 
     if topicHash = scoresDictionary[topic.shortName]
@@ -147,17 +138,6 @@ class User < ApplicationRecord
     # Not attempted
     return nil
   end
-
-  # Deprecated 
-  # def getLastScore(topicID, levelName)
-  #   topic = Topic.find(topicID)
-
-  #   if topicHash = scoresDictionary[topic.shortName]
-  #     return topicHash[levelName]
-  #   else
-  #     return nil
-  #   end
-  # end
 
   # Return the highest level for which the threshold score has been reached. 
   # Return 0 if the topic has not yet been attempted. 
@@ -203,7 +183,7 @@ class User < ApplicationRecord
     self.save
   end
 
-  # Level methods --------------------------------------------------------------
+  # Level view methods ---------------------------------------------------------
 
   # Record the levels viewed for each topic.
   # If no questions have been attempted for the topic then also initialise 
