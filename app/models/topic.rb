@@ -14,7 +14,8 @@ class Topic < ApplicationRecord
     splits[0]
   end
 
-  # Why is this defined on a system and not the topic itself?
+  # Topic level names are common to a system, hence this method is actually
+  # called on the parent system. 
   # 
   # @return [[String]]
   def shortLevelNames

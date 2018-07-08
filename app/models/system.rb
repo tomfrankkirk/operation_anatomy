@@ -21,7 +21,7 @@ class System < ApplicationRecord
     }
   end
 
-  # Return short system name 
+  # Return short system name (string)
   def shortName
     name.split[0].downcase
   end

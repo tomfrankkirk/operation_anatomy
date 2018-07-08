@@ -31,4 +31,5 @@ class TopicsController < EndUserController
     session[:forLevel] = nil
     session[:topicID] = @topic.id
   end
+  
 end
