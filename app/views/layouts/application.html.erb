@@ -117,13 +117,12 @@
       <script> window.alert("<%= flash[:successMessage] %>"); </script>
    </div>
    <% end %>
-   <!-- <% flash.each do |name, msg| -%>
-   <%= content_tag :div, msg, class: name %>
-   <% end -%> -->
+   <% flash.each do |name, msg| -%>
+      <%= content_tag :div, msg, class: name %>
+   <% end -%>
 
 
     <!-- Yield to the main content itself, if devise center the whole lot.  -->
-    <%# byebug %>
    <% if controller_name == "sessions" %>
       <div class="mainPage centered">
       <% else %>
