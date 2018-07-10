@@ -17,21 +17,16 @@ class TeachingController < EndUserController
   # requests to this function. When the last section is reached the 
   # level is set as "viewed"
   # 
-  # @param :topic [String] short topic name, when landing from a manually defined link
   # @param :id [Int] topic ID, when landing from an automatically generated link 
   # @param :forLevel [String] short level name 
   # @param :currentPart [Int] optional, number from 0 of the desired next section
   def show
     
-    # First check if this is a  auto-generated path or a manual one written
-    # directly into the HTML (a link between pages). Manual ones are passed 
-    # around with a "topic" param, whereas auto ones are with an "id" param.
-    # If manual we load the topic via its name, pop the ID into the params hash 
-    # and then carry on as normal.
-    if name = params[:topic]
-      @topic = (Topic.select { |t| t.shortName == name }).first 
-    else
-      @topic = Topic.find(params[:id])
+    @topic = Topic.find(params[:id])
+    if @topic.nil? 
+      flash[:error] = 'Error loading teaching page'
+      redirect_to topics_path
+      return 
     end 
 
     # Attempt to get the paths for this topic and level. Returns nil if files not found.
@@ -134,11 +129,21 @@ class TeachingController < EndUserController
   # @param linkBody [String] the body of the link to display 
   # @param destPart [Int] optional, part number to direct to (zero index)
   def manualLink(destTopic, destLevel, linkBody, destPart=nil)
-    if destPart
-      "<a href='/teaching?topic=#{URI::encode(destTopic)}&forLevel=#{destLevel.downcase}&currentPart=#{destPart}'> #{linkBody} </a>"
-    else 
-      "<a href='/teaching?topic=#{URI::encode(destTopic)}&forLevel=#{destLevel.downcase}'> #{linkBody} </a>"
+    
+    # Check that both the topic and level are correct. Then generate the link 
+    if topic = (Topic.all.select { |t| t.shortName == destTopic }).first
+      if topic.shortLevelNames.include? destLevel 
+        link = if destPart
+          "<a href='/teaching?id=#{topic.id}&forLevel=#{destLevel.downcase}&currentPart=#{destPart}'> #{linkBody} </a>"
+        else 
+          "<a href='/teaching?id=#{topic.id}&forLevel=#{destLevel.downcase}'> #{linkBody} </a>"
+        end
+        return link
+      end 
     end 
+
+    # If either of the above tests failed then we will return this error link. 
+    return "<a href=\"javascript:window.alert('Sorry, this link is not currently available');\"> #{linkBody} </a>"
 
   end 
 end
