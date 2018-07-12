@@ -99,12 +99,12 @@ class User < ApplicationRecord
     # Load topic and level number, prepare score record object 
     topic = Topic.find(topicID)
     scoreRecord = ScoreRecord.new(score, Time.now.strftime('%d/%m/%Y'))
-
+    
     # Check for an existing score hash for this topic, which should exist. 
     # Is the new score greater than existing? Overwrite if so.
     if existingTopicHash = scoresDictionary[topic.shortName]
       if levelHash = existingTopicHash[levelName]
-        existingTopicHash[levelName] = scoreRecord unless levelHash[:score] >= score
+        existingTopicHash[levelName] = scoreRecord unless levelHash["score"] >= score
 
       # No existing score for this level, so append the new score.
       else
@@ -131,7 +131,7 @@ class User < ApplicationRecord
     # Check the level has been attempted, return score if so 
     if topicHash = scoresDictionary[topic.shortName]
       if record = topicHash[levelName]
-        return record[:score]
+        return record["score"]
       end
     end
 
@@ -182,8 +182,9 @@ class User < ApplicationRecord
     scoresDictionary[topic.shortName] = { 'introduction' => dummy }
     self.save
   end
-
-  # Level view methods ---------------------------------------------------------
+  
+  # TODO: this is recording the same level view multiple times in the users dict: 
+  # only need to record this info once, the first time. 
 
   # Record the levels viewed for each topic.
   # If no questions have been attempted for the topic then also initialise 
