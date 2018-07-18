@@ -183,9 +183,6 @@ class User < ApplicationRecord
     self.save
   end
   
-  # TODO: this is recording the same level view multiple times in the users dict: 
-  # only need to record this info once, the first time. 
-
   # Record the levels viewed for each topic.
   # If no questions have been attempted for the topic then also initialise 
   # the score record for that topic (setting a dummy score for introduction)
@@ -196,7 +193,7 @@ class User < ApplicationRecord
     topic = Topic.find(topicID)
     
     if existingArray = levelViewsDictionary[topic.shortName]
-      existingArray.append(levelName)
+      existingArray.append(levelName) unless existingArray.include?(levelName)
 
       # Topic has not been attempted -> initialse dummy 
     else
