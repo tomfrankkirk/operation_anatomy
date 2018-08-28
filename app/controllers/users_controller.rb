@@ -25,7 +25,7 @@ class UsersController < EndUserController
     respond_to do |format|
       format.js do
         tone = params[:feedback][:tone]
-        comment = params[:feedback][:comment]
+        comment = current_user.email + "\n" + params[:feedback][:comment]
         userID = params[:userID]
         ApplicationMailer.send_feedback(tone, comment, userID).deliver
         render body: nil

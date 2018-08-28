@@ -98,10 +98,10 @@ $backgroundMarginTop: -99px;
 // Defines the borders and the area within which the actual content will be displayed. 
 .featureBox {
    border-top: 45px solid rgba(60, 143, 216, 0.74); 
-   border-bottom: 4px solid rgb(84, 131, 170); 
+   border-bottom: 4px solid rgba(60, 143, 216, 0.74); 
    margin-top: 40px; 
    padding-top: 30px; 
-   padding-bottom: 10px; 
+   padding-bottom: 15px; 
    padding-left: 20px; 
    padding-right: 20px; 
 }
