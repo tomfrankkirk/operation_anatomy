@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class TeachingController < EndUserController
+  include RoutingHelpers 
   respond_to :html, :xml, :jpg, :js
 
   # Helper method to open and send images embedded within teaching pages 
@@ -44,16 +45,7 @@ class TeachingController < EndUserController
         current_user.setLevelViewed(@topic.id, @level) unless (current_user.inAdminMode || current_user.revisionMode) 
       end
 
-      # Behaviour here depends if the page includes a hard-coded link to another
-      # teaching page (flagged via the .erb extension). If so we preprocess to 
-      # generate the link dynamically. 
-      if @path.include? '.erb'
-        @rawStr = File.read(@path)
-        template = ERB.new(@rawStr)
-        @flatHTMLString = template.result(binding)
-      else
         @flatHTMLString = File.read(@path)
-      end
 
     # If unsuccessful then render the error message
     else
@@ -104,8 +96,8 @@ class TeachingController < EndUserController
   # @param forLevel [String] short level name 
   # @return [[String]] paths, sorted from part 0 to N (N < 10)
   def teachingPagePaths(topicName, forLevel)
-    pathStr = 'teaching/' + topicName + '/' + forLevel + '/*'
-    paths = Dir[pathStr].select { |f| File.file? f }
+    pathStr = teachingDirectory(topicName, forLevel) 
+    paths = Dir[pathStr + '*.html'].select { |f| File.file? f }
     if paths == []
       return nil
     else
@@ -117,33 +109,4 @@ class TeachingController < EndUserController
     end
   end
 
-  # Helper method to dynamically fill-in manually specified links within 
-  # teaching pages. Before a page is served up, ERBs are templated in the 
-  # controller's scope which allows the the arguments defined within the page
-  # to be passed into the function, which then generates the a href tags
-  # and serves them up. Arguments should mirror the structure of the 
-  # teaching directory. 
-  # 
-  # @param destTopic [String] short topic name eg shoulder
-  # @param destLevel [String] short level name eg bones
-  # @param linkBody [String] the body of the link to display 
-  # @param destPart [Int] optional, part number to direct to (zero index)
-  def manualLink(destTopic, destLevel, linkBody, destPart=nil)
-    
-    # Check that both the topic and level are correct. Then generate the link 
-    if topic = (Topic.all.select { |t| t.shortName == destTopic }).first
-      if topic.shortLevelNames.include? destLevel 
-        link = if destPart
-          "<a href='/teaching?id=#{topic.id}&forLevel=#{destLevel.downcase}&currentPart=#{destPart}'> #{linkBody} </a>"
-        else 
-          "<a href='/teaching?id=#{topic.id}&forLevel=#{destLevel.downcase}'> #{linkBody} </a>"
-        end
-        return link
-      end 
-    end 
-
-    # If either of the above tests failed then we will return this error link. 
-    return "<a href=\"javascript:window.alert('Sorry, this link is not currently available');\"> #{linkBody} </a>"
-
-  end 
 end
