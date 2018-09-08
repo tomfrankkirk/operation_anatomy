@@ -4,12 +4,6 @@ class System < ApplicationRecord
   has_many :topics
   serialize :level_names, Array
 
-  # Deprecated
-  # def shortNameForLevel(levelNumber)
-  #   long = level_names[k]
-  #   long.split[0]
-  # end
-
   # Return all short level names. Drop leading "the" if present
   # 
   # @return [[String]]
