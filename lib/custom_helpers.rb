@@ -17,7 +17,7 @@ module RoutingHelpers
   # @param destPart [Int] optional, part number to direct to (zero index)
   def manualLink(destTopic, destLevel, linkBody, destPart=nil)
     # Check that both the topic and level are correct. Then generate the link 
-    if topic = (Topic.all.select { |t| t.shortName == destTopic }).first
+    if topic = Topic.where(short_name: destTopic).first
       if topic.shortLevelNames.include? destLevel 
         link = if destPart
           "<a href='/teaching?id=#{topic.id}&forLevel=#{destLevel.downcase}&currentPart=#{destPart}'> #{linkBody} </a>"
@@ -33,8 +33,12 @@ module RoutingHelpers
 
   end
 
+  # Helper to return a path to the teaching directory for the topic and level 
+  #
+  # @param topic [String/Int] short topic name or topic ID eg shoulder
+  # @param level [String/Int] short level name or topic level eg introduction 
+  # @return [String] path to the teaching directory with trailing slash 
   def teachingDirectory(topic, level)
-    
     if topic.is_a?(String) 
       tops = Topic.all.select { |t| t.shortName == topic }
       tpcObj = tops.first    
@@ -42,7 +46,11 @@ module RoutingHelpers
       tpcObj = Topic.find(topic)
     end
     level = level.is_a?(String) ? level : tpcObj.shortName(level)
-    return "teaching/#{tpcObj.shortName}/#{level}/" 
+    dir = "teaching/#{tpcObj.shortName}/#{level}/" 
+    if !(Dir.exist?(dir))
+      raise "NonexistentDirectoryError"
+    end
+    return dir 
   end 
 
 end 
