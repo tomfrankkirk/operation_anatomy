@@ -17,8 +17,7 @@ class TopicsController < EndUserController
     @admin = (current_user.isAdmin && current_user.inAdminMode)
 
     # If not in revision mode, check max level access, otherwise set as nil.
-    @maxLevelAccess = if @revisionMode then 
-       nil else current_user.checkLevelAccess(@topic.id) end 
+    @maxLevelAccess = @revisionMode ? nil : current_user.checkLevelAccess(@topic.id) 
     @highestViewed = current_user.getHighestViewedLevel(@topic.id)
 
     # Prepare items for the table cell view. 
