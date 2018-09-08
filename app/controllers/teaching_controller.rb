@@ -39,13 +39,13 @@ class TeachingController < EndUserController
       # Get current part, if it exists, or initialise to 0.
       @currentPart = ((p = params[:currentPart]) ? p.to_i : 0)
       @path = @paths[@currentPart]
-
+ 
       # If this is the last page of the level, set the level as viewed
       if @currentPart + 1 == @paths.count
         current_user.setLevelViewed(@topic.id, @level) unless (current_user.inAdminMode || current_user.revisionMode) 
       end
 
-        @flatHTMLString = File.read(@path)
+      @flatHTMLString = File.read(@path)
 
     # If unsuccessful then render the error message
     else
@@ -84,7 +84,7 @@ class TeachingController < EndUserController
     if File.exist? path
       send_file(path)
     else
-      head 418 # If fail then return coffee pot status 
+      render status: 418 # If fail then return coffee pot status 
     end
   end
 
@@ -96,17 +96,21 @@ class TeachingController < EndUserController
   # @param forLevel [String] short level name 
   # @return [[String]] paths, sorted from part 0 to N (N < 10)
   def teachingPagePaths(topicName, forLevel)
-    pathStr = teachingDirectory(topicName, forLevel) 
-    paths = Dir[pathStr + '*.html'].select { |f| File.file? f }
-    if paths == []
-      return nil
-    else
-      return paths.sort_by do |s|
-        # Some funky regexp -- disabled and back to simple extract last number between P and html! s[/\d{2,}/].to_i
-        # so make sure that there are less than 10 pages in a level...
-        s[s.rindex('P') + 1..s.rindex('.html') - 1].to_i
-      end 
-    end
+    begin 
+      pathStr = teachingDirectory(topicName, forLevel) 
+      paths = Dir[pathStr + '*.html']
+      if paths == []
+        return nil
+      else
+        return paths.sort_by do |s|
+          # Some funky regexp -- disabled and back to simple extract last number between P and html! s[/\d{2,}/].to_i
+          # so make sure that there are less than 10 pages in a level...
+          s[s.rindex('P') + 1..s.rindex('.html') - 1].to_i
+        end 
+      end
+    rescue 
+      return nil 
+    end 
   end
 
 end
