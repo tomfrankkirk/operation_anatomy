@@ -8,11 +8,14 @@ class Topic < ApplicationRecord
   # Return the short topic name, one word each, dropping "the" where necessary
   # 
   # @return [String] topic short name
+  # def shortName
+  #   splits = name.downcase.split
+  #   return splits[1] if splits[0] == 'the'
+  #   splits[0]
+  # end
   def shortName
-    splits = name.downcase.split
-    return splits[1] if splits[0] == 'the'
-    splits[0]
-  end
+    self.short_name
+  end 
 
   # Topic level names are common to a system, hence this method is actually
   # called on the parent system. 

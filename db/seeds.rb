@@ -25,7 +25,7 @@ rs = System.create(name: 'Respiratory')
 intro = System.create(name: 'Introduction to Anatomy')
 
 # Seeding topics
-shoulderTopic = Topic.create(name: 'The Shoulder Joint', system_id: msk.id)
+shoulderTopic = Topic.create(name: 'The Shoulder Joint', system_id: msk.id, short_name: 'shoulder')
 
 # Seeding questions
 File.open(Dir['teaching/questionSeed.rb'].first) { |file| load(file) }
@@ -33,5 +33,5 @@ File.open(Dir['teaching/questionSeed.rb'].first) { |file| load(file) }
 # Wipe and then seed the dictionary definitions. Correct as of 18 March 2017.
 DictionaryEntry.all.each(&:destroy)
 
-# Level names for each topic.
+# Dictionary entries 
 File.open(Dir['teaching/JSDict.rb'].first) { |file| load(file) }
