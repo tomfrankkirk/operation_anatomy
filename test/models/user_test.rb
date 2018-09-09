@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+  # TODO update user tests as lots of bugs re level access made it through 
 
 class UserTest < ActiveSupport::TestCase
   def setup
@@ -10,105 +11,119 @@ class UserTest < ActiveSupport::TestCase
   test 'Nil score for new user' do
     user = User.new
     topic = Topic.first
-    levelName = topic.levelName(1)
-    assert user.getLevelScore(topic.id, levelName).nil?, 'Level score for new user should be nil'
+    levelName = topic.levelName(0)
+    assert user.getLevelScore(topic.id, levelName) == 0, 'Level score for new user should be 0'
   end
 
   test 'New user has not viewed introduction yet' do
     user = User.new
     topic = Topic.first
-    assert user.getHighestViewedLevel(topic.id) == 0, 'User has not viewed intro so should be 0'
+    assert user.getHighestViewedLevel(topic.id) == -1, 'User has not viewed intro so should be -1'
   end
+
+  test 'New user has passed no levels' do 
+    user = User.new 
+    topic = Topic.first 
+    assert user.getHighestLevelPassed(topic.id) == -1, 'New user max level passed should be -1'
+  end 
 
   test 'New user has no level access' do
     user = User.new
     topic = Topic.first
-    assert user.checkLevelAccess(topic.id) == 0, 'Level access for new user should be zero'
+    assert user.checkLevelAccess(topic.id) == -1, 'Level access for new user should be -1'
   end
 
-  test 'First level view is recorded' do
+  test 'L0 view is recorded' do
     user = User.new
     topic = Topic.first
-    l1 = topic.levelName(0)
-    user.setLevelViewed(topic.id, l1)
+    l0 = topic.levelName(0)
+    user.setLevelViewed(topic.id, l0)
     assert user.getHighestViewedLevel(topic.id) == 0, 'Highest viewed level should be 0'
   end
-
-  test 'Access to level 1 after viewing introduction AND level 1 material' do
+  
+  test 'After L0 view, dummy score initialised' do 
     user = User.new
     topic = Topic.first
-    l1 = topic.levelName(0)
-    l2 = topic.levelName(1)
+    l0 = topic.levelName(0)
+    user.setLevelViewed(topic.id, l0)
+    assert user.getHighestLevelPassed(topic.id) == 0, 'Highest viewed passed should be 0'
+  end
+
+  test 'No access to level 1 questions after only level 0 viewed' do
+    user = User.new
+    topic = Topic.first
+    l0 = topic.levelName(0)
+    user.setLevelViewed(topic.id, l0)
+    assert user.checkLevelAccess(topic.id) == 0, 'Level access should be 0 after only viewing intro'
+  end 
+
+  test 'Access to L1 questions after viewing L0 and L1' do 
+    user = User.new
+    topic = Topic.first
+    l0 = topic.levelName(0)
+    l1 = topic.levelName(1)
+    user.setLevelViewed(topic.id, l0)
+    user.setLevelViewed(topic.id, l1)
+    assert user.checkLevelAccess(topic.id) == 1, 'After viewing L0/1 should have access to L1 questions'
+  end
+
+  test 'Access to L2 questions after viewing L0/1/2 and sitting L1' do 
+    user = User.new
+    topic = Topic.first
+    l0 = topic.levelName(0)
+    l1 = topic.levelName(1)
+    l2 = topic.levelName(2)
+    user.setLevelViewed(topic.id, l0)
     user.setLevelViewed(topic.id, l1)
     user.setLevelViewed(topic.id, l2)
-    assert user.checkLevelAccess(topic.id) == 1, 'After viewing levels 0 and 1, should have access to L1 questions'
+    user.updateLevelScore(topic.id, l1, 100)
+    assert user.checkLevelAccess(topic.id) == 2
+  end
+
+  test 'No access to L2 questions after only viewing L0/1/2' do 
+    user = User.new
+    topic = Topic.first
+    l0 = topic.levelName(0)
+    l1 = topic.levelName(1)
+    l2 = topic.levelName(2)
+    user.setLevelViewed(topic.id, l0)
+    user.setLevelViewed(topic.id, l1)
+    user.setLevelViewed(topic.id, l2)
+    assert user.checkLevelAccess(topic.id) == 1
   end
 
   test 'Write a test score' do
     user = User.new
     topic = Topic.first
-    l1 = topic.levelName(0)
-    l2 = topic.levelName(1)
+    l0 = topic.levelName(0)
+    l1 = topic.levelName(1)
+    user.setLevelViewed(topic.id, l0)
     user.setLevelViewed(topic.id, l1)
-    user.setLevelViewed(topic.id, l2)
     score = 100 * Random.rand
-    assert user.updateLevelScore(topic.id, l2, score), 'Should be able to update score for new user'
-    assert user.getLevelScore(topic.id, l2) == score, 'Retrieved score does not match generated score'
+    assert user.updateLevelScore(topic.id, l1, score), 'Should be able to update score for new user'
+    assert user.getLevelScore(topic.id, l1) == score, 'Retrieved score does not match generated score'
   end
 
   test 'Check level access after score under threshold' do
     user = User.new
     topic = Topic.first
-    l1 = topic.levelName(0)
-    l2 = topic.levelName(1)
+    l0 = topic.levelName(0)
+    l1 = topic.levelName(1)
+    user.setLevelViewed(topic.id, l0)
     user.setLevelViewed(topic.id, l1)
-    user.setLevelViewed(topic.id, l2)
-    score = 20 + 30 * Random.rand
-    user.updateLevelScore(topic.id, l2, score)
+    user.updateLevelScore(topic.id, l1, 30)
     assert user.checkLevelAccess(topic.id) == 1, 'Low score so should only have access to level 1'
-  end
-
-  test 'Check level access after score over threshold and views' do
-    user = User.new
-    topic = Topic.first
-    l1 = topic.levelName(0)
-    l2 = topic.levelName(1)
-    l3 = topic.levelName(2)
-    user.setLevelViewed(topic.id, l1)
-    user.setLevelViewed(topic.id, l2)
-    user.setLevelViewed(topic.id, l3)
-    score = 70 + 30 * Random.rand
-    user.updateLevelScore(topic.id, l2, score)
-    assert user.checkLevelAccess(topic.id) == 2, 'High score so should have access to L2'
   end
 
   test 'Check level access after high score but no view' do
     user = User.new
     topic = Topic.first
-    l1 = topic.levelName(0)
-    l2 = topic.levelName(1)
+    l0 = topic.levelName(0)
+    l1 = topic.levelName(1)
+    user.setLevelViewed(topic.id, l0)
     user.setLevelViewed(topic.id, l1)
-    user.setLevelViewed(topic.id, l2)
-    score = 70 + 30 * Random.rand
-    user.updateLevelScore(topic.id, l2, score)
-    assert user.checkLevelAccess(topic.id) == 1, 'Score was high but have not yet viewed level 2 so level 2 access'
-  end
-
-  test 'Check level access after 2 high scores and level views' do
-    user = User.new
-    topic = Topic.first
-    l1 = topic.levelName(0)
-    l2 = topic.levelName(1)
-    l3 = topic.levelName(2)
-    l4 = topic.levelName(3)
-    user.setLevelViewed(topic.id, l1)
-    user.setLevelViewed(topic.id, l2)
-    user.setLevelViewed(topic.id, l3)
-    user.setLevelViewed(topic.id, l4)
-    score = 80
-    user.updateLevelScore(topic.id, l2, score)
-    user.updateLevelScore(topic.id, l3, score)
-    assert user.checkLevelAccess(topic.id) == 3, 'Score was high so should have access to level 3'
+    user.updateLevelScore(topic.id, l1, 90)
+    assert user.checkLevelAccess(topic.id) == 1, 'Score was high but have not yet viewed level 2 so remain on level 1 access'
   end
 
   test 'Correct number of questions sent user on for each level' do
@@ -151,4 +166,5 @@ class UserTest < ActiveSupport::TestCase
   #   end
   # end
 
-end
+end 
+ 
