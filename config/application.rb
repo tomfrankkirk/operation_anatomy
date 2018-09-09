@@ -11,7 +11,7 @@ Bundler.require(*Rails.groups)
 
 module OperationAnatomy
   class Application < Rails::Application
-    include RoutingHelpers
+    # include RoutingHelpers
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -27,25 +27,7 @@ module OperationAnatomy
         # module, located at lib/custom_helpers.rb, and asset paths are completed by
         # direct variable substitution. 
         puts "Initializing manual teaching page links"
-        Topic.all.each do |topic| 
-          topic.numberOfLevels.times do |level| 
-            if files = Dir["teaching/#{topic.shortName}/#{topic.levelName(level)}/*.erb"]
-              files.each do |f|
-                begin 
-                  rawStr = File.read(f)
-                  template = ERB.new(rawStr)
-                  flatHTMLString = template.result(binding)
-                  f['.erb'] = ''
-                  File.open(f, 'w') { |nf| nf << flatHTMLString }
-                rescue Exception => e 
-                  puts "Error on page #{f}"
-                  puts e.to_s 
-                  raise "ManualLinkError"
-                end 
-              end 
-            end  
-          end 
-        end 
+        RoutingHelpers::preprocessManualTeachingLinks
       end 
 
 
