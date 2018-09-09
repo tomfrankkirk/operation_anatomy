@@ -103,9 +103,9 @@ class User < ApplicationRecord
     # Check for an existing score hash for this topic, which should exist. 
     # Is the new score greater than existing? Overwrite if so.
     if existingTopicHash = scoresDictionary[topic.shortName]
+
       if levelHash = existingTopicHash[levelName]
         existingTopicHash[levelName] = scoreRecord unless levelHash["score"] >= score
-
       # No existing score for this level, so append the new score.
       else
         existingTopicHash[levelName] = scoreRecord
@@ -116,15 +116,14 @@ class User < ApplicationRecord
     else 
       puts 'User#updateLevelScore error: could not find a hash for this topic'
       return false
-    end 
-
+    end
   end
 
-  # Get score for level and topic. Return nil if it does not exist 
+  # Get score for level and topic. Return 0 if never attempted. 
   # 
   # @param topicID [Int] topic ID 
   # @param levelName [String] short level name 
-  # @return [Int?] score, or nil if it does not exist. 
+  # @return [Int] score
   def getLevelScore(topicID, levelName)
     topic = Topic.find(topicID)
 
@@ -136,7 +135,7 @@ class User < ApplicationRecord
     end
 
     # Not attempted
-    return nil
+    return 0
   end
 
   # Return the highest level for which the threshold score has been reached. 
@@ -147,27 +146,28 @@ class User < ApplicationRecord
   def getHighestLevelPassed(topicID)
     topic = Topic.find(topicID)
 
-    # If scores exist for the topic, pick the max that is above threshold. Otherwise return 0
+    # If scores exist for the topic, pick the max that is above threshold
     if existingTopicHash = scoresDictionary[topic.shortName]
-      maxLevelScored = existingTopicHash.max_by do |l, r| 
-        r['score'] >= THRESHOLD ? topic.levelNumber(l) : 0
-      end
+      maxLevelScored = existingTopicHash.max_by { |l, r| 
+        r['score'] >= THRESHOLD ? topic.levelNumber(l) : -1
+      }
       return topic.levelNumber(maxLevelScored[0])
 
+    # Topic never attempted, return nil 
     else
-      return 0
+      return -1 
     end 
 
   end 
 
-  # Check the highest level questions the user should have access to for a particular topic. This is defined as the min of (the highest viewed level) and (level for which they have reached the score threshold + 1)
+  # Check the highest level questions the user should have access to for a particular topic.
   # 
   # @param topicID [Int] the topic ID 
   # @return [Int] level number (0-indexed)
   def checkLevelAccess(topicID)
     maxView = getHighestViewedLevel(topicID)
     maxLevelScored = getHighestLevelPassed(topicID)
-    return [maxLevelScored + 1, maxView].min
+    maxView > maxLevelScored ? maxLevelScored + 1 : maxLevelScored
   end
 
   # Initialise the level 0 score for the user when first attempting a topic. 
@@ -204,7 +204,7 @@ class User < ApplicationRecord
     self.save
   end
 
-  # Get highest level viewed for topic 
+  # Get highest level viewed for topic. Return -1 for never viewed. 
   # 
   # @param topicID [Int] topic ID 
   # @return [Int] level number 
@@ -212,25 +212,15 @@ class User < ApplicationRecord
     topic = Topic.find(topicID)
 
     # If a view hash exists, use that. 
-    if existingArray = levelViewsDictionary[topic.shortName]
+    if existingArray = levelViewsDictionary[topic.shortName]        
+      levelNums = existingArray.map { |name| 
+        topic.levelNumber(name)
+      }
+      return levelNums.max
+    end 
 
-      # View hash may exist but simply be empty 
-      if existingArray.empty?
-        return 0 
-
-        # If exists, max of viewed levels. 
-      else
-        
-        levelNums = existingArray.map { |name| 
-          topic.levelNumber(name)
-        }
-        return levelNums.max
-      end
-
-      # If not then return 0 (topic never viewed)
-    else
-      return 0 
-    end
+    # If topic never viewed return -1 
+    return -1 
 
   end
 
