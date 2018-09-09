@@ -19,21 +19,27 @@
             <td class="iconMenuCell"> 
             <% i = items[k] %>
             <% path = path_root + path_stubs[k] %>
-            <% if k <= max_level_access %>
-                  <%= link_to image_tag("icons/" + icon_stubs[k], :class => "menuIcon"), path %>
-                  <%= link_to i, path %> 
+            <% if k <= max_view_access %>
+               <%= link_to image_tag("icons/" + icon_stubs[k], :class => "menuIcon"), path %>
+               <%= link_to i, path %> 
 
-                  <% if defined?(secondaryLinks) && k != 0 %>
-                        <br> <i> <%= link_to "Quiz", controller: "questions", action: "respond", 
-                              id: @topic.id, levelName: path_stubs[k] %> </i>
+               <% if defined?(secondaryLinks) %>
+                  <% if k == 0 %>
+                     <br> <br>
                   <% else %>
-                        <br><br>
+                     <% if k <= max_level_access %>
+                        <br> <i> <%= link_to "Quiz", controller: "questions", action: "respond", 
+                           id: @topic.id, levelName: path_stubs[k] %> </i>
+                     <% else %>
+                        <br><i> No access yet </i><br>
+                     <% end %>
                   <% end %> </td>
+               <% end %>
 
             <% else %>
-                  <%= image_tag("icons/" + icon_stubs[k], :class => "menuIcon") %>
-                  <%= i %> <br>
-                  <i> No access yet </i>
+               <%= image_tag("icons/" + icon_stubs[k], :class => "menuIcon") %>
+               <%= i %> <br>
+               <i> No access yet </i>
             <% end %>
          <% end %>
       <% end %>
