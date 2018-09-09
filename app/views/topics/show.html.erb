@@ -1,4 +1,4 @@
 <h1> <%= @topic.name %> </h1>
 
 
-<%= render "shared/iconTable", items: @topic.levelNames, path_root: @pathRoot, path_stubs: @pathStubs, icon_stubs: @iconStubs, secondaryLinks: true, max_level_access: @maxLevelAccess, revision_mode: @revisionMode %>
+<%= render "shared/iconTable", items: @topic.levelNames, path_root: @pathRoot, path_stubs: @pathStubs, icon_stubs: @iconStubs, secondaryLinks: true, max_level_access: @maxLevelAccess, revision_mode: @revisionMode, max_view_access: @maxViewAccess %>
