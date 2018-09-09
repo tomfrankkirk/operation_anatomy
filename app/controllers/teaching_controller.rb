@@ -1,17 +1,16 @@
 # frozen_string_literal: true
 
 class TeachingController < EndUserController
-  include RoutingHelpers 
   respond_to :html, :xml, :jpg, :js
 
   # Helper method to open and send images embedded within teaching pages 
-  def fetchImage
-    fullPathString = expandImagePath(params[:id])
-    path = Dir[fullPathString + '.*']
-    img = File.open(path.first)
-    send_data(img.read)
-    img.close
-  end
+  # def fetchImage
+  #   fullPathString = expandImagePath(params[:id])
+  #   path = Dir[fullPathString + '.*']
+  #   img = File.open(path.first)
+  #   send_data(img.read)
+  #   img.close
+  # end
 
   # Display a teaching page. As these pages are split into sections, 
   # the material is shown in a partial view that is updated via JS
@@ -22,18 +21,11 @@ class TeachingController < EndUserController
   # @param :forLevel [String] short level name 
   # @param :currentPart [Int] optional, number from 0 of the desired next section
   def show
-    
     @topic = Topic.find(params[:id])
-    if @topic.nil? 
-      flash[:error] = 'Error loading teaching page'
-      redirect_to topics_path
-      return 
-    end 
-
-    # Attempt to get the paths for this topic and level. Returns nil if files not found.
     params[:id] = @topic.id
     @level = params[:forLevel]
 
+    # Attempt to get the paths for this topic and level. Returns nil if files not found.
     if @paths = teachingPagePaths(@topic.shortName, @level)
 
       # Get current part, if it exists, or initialise to 0.
@@ -46,17 +38,20 @@ class TeachingController < EndUserController
       end
 
       @flatHTMLString = File.read(@path)
+      return 
+    end 
 
-    # If unsuccessful then render the error message
-    else
-      render 'error'
-    end
+    # If we get here then render the error message
+    flash[:error] = 'Error loading teaching page'
+    redirect_to topics_path
+    return 
 
     # HTML response for the first time landing on a level, JS thereafter. 
     respond_to do |format|
       format.html
       format.js
     end
+
   end
 
   # Send XML or JPG files for webrotate. Requests are caught and
@@ -97,7 +92,7 @@ class TeachingController < EndUserController
   # @return [[String]] paths, sorted from part 0 to N (N < 10)
   def teachingPagePaths(topicName, forLevel)
     begin 
-      pathStr = teachingDirectory(topicName, forLevel) 
+      pathStr = RoutingHelpers::teachingDirectory(topicName, forLevel) 
       paths = Dir[pathStr + '*.html']
       if paths == []
         return nil
