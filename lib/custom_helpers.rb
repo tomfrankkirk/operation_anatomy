@@ -1,6 +1,6 @@
 module RoutingHelpers
 
-  def sayHello
+  def self.sayHello
     "hello" 
   end 
 
@@ -15,7 +15,7 @@ module RoutingHelpers
   # @param destLevel [String] short level name eg bones
   # @param linkBody [String] the body of the link to display 
   # @param destPart [Int] optional, part number to direct to (zero index)
-  def manualLink(destTopic, destLevel, linkBody, destPart=nil)
+  def self.manualLink(destTopic, destLevel, linkBody, destPart=nil)
     # Check that both the topic and level are correct. Then generate the link 
     if topic = Topic.where(short_name: destTopic).first
       if topic.shortLevelNames.include? destLevel 
@@ -33,12 +33,34 @@ module RoutingHelpers
 
   end
 
+  def self.preprocessManualTeachingLinks
+    Topic.all.each do |topic| 
+      topic.numberOfLevels.times do |level| 
+        if files = Dir["teaching/#{topic.shortName}/#{topic.levelName(level)}/*.erb"]
+          files.each do |f|
+            begin 
+              rawStr = File.read(f)
+              template = ERB.new(rawStr)
+              flatHTMLString = template.result(binding)
+              f['.erb'] = ''
+              File.open(f, 'w') { |nf| nf << flatHTMLString }
+            rescue Exception => e 
+              puts "Error on page #{f}"
+              puts e.to_s 
+              raise "ManualLinkError"
+            end 
+          end 
+        end  
+      end 
+    end 
+  end 
+
   # Helper to return a path to the teaching directory for the topic and level 
   #
   # @param topic [String/Int] short topic name or topic ID eg shoulder
   # @param level [String/Int] short level name or topic level eg introduction 
   # @return [String] path to the teaching directory with trailing slash 
-  def teachingDirectory(topic, level)
+  def self.teachingDirectory(topic, level)
     if topic.is_a?(String) 
       tops = Topic.all.select { |t| t.shortName == topic }
       tpcObj = tops.first    
@@ -52,5 +74,8 @@ module RoutingHelpers
     end
     return dir 
   end 
+
+
+
 
 end 
