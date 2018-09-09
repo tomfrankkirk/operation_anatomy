@@ -53,7 +53,6 @@ class QuestionsController < EndUserController
             if !current_user.hasFinishedQuestions(params[:id], params[:levelName])
               flash[:errorMessage] = 'Warning, could not save scores for previous level'
             else
-              byebug
               score = current_user.getLevelScore(params[:id], params[:levelName])
               flash[:successMessage] = if score > User::THRESHOLD
                 "Congratulations! You scored #{score}% so the next level is available."
