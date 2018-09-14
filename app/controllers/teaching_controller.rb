@@ -21,35 +21,32 @@ class TeachingController < EndUserController
   # @param :forLevel [String] short level name 
   # @param :currentPart [Int] optional, number from 0 of the desired next section
   def show
-    @topic = Topic.find(params[:id])
-    params[:id] = @topic.id
-    @level = params[:forLevel]
+    # HTML response for the first time landing on a level, JS thereafter. 
+    respond_to :html, :js 
 
-    # Attempt to get the paths for this topic and level. Returns nil if files not found.
-    if @paths = teachingPagePaths(@topic.shortName, @level)
+    begin 
+      @topic = Topic.find(params[:id])
+      params[:id] = @topic.id
+      @level = params[:forLevel]
+
+      # Attempt to get the paths for this topic and level. Returns nil if files not found.
+      @paths = RoutingHelpers::teachingPagePaths(@topic.shortName, @level)
 
       # Get current part, if it exists, or initialise to 0.
       @currentPart = ((p = params[:currentPart]) ? p.to_i : 0)
       @path = @paths[@currentPart]
- 
+
       # If this is the last page of the level, set the level as viewed
       if @currentPart + 1 == @paths.count
         current_user.setLevelViewed(@topic.id, @level) unless (current_user.inAdminMode || current_user.revisionMode) 
       end
 
       @flatHTMLString = File.read(@path)
-      return 
-    end 
 
-    # If we get here then render the error message
-    flash[:error] = 'Error loading teaching page'
-    redirect_to topics_path
-    return 
-
-    # HTML response for the first time landing on a level, JS thereafter. 
-    respond_to do |format|
-      format.html
-      format.js
+    rescue Exception => e
+      puts e.message 
+      flash[:error] = 'Error loading teaching page'
+      redirect_to topics_path
     end
 
   end
@@ -81,31 +78,6 @@ class TeachingController < EndUserController
     else
       render status: 418 # If fail then return coffee pot status 
     end
-  end
-
-  private
-
-  # Send both HTML and ERB pages at the given location.
-  # 
-  # @param topicName [String] short topic name 
-  # @param forLevel [String] short level name 
-  # @return [[String]] paths, sorted from part 0 to N (N < 10)
-  def teachingPagePaths(topicName, forLevel)
-    begin 
-      pathStr = RoutingHelpers::teachingDirectory(topicName, forLevel) 
-      paths = Dir[pathStr + '*.html']
-      if paths == []
-        return nil
-      else
-        return paths.sort_by do |s|
-          # Some funky regexp -- disabled and back to simple extract last number between P and html! s[/\d{2,}/].to_i
-          # so make sure that there are less than 10 pages in a level...
-          s[s.rindex('P') + 1..s.rindex('.html') - 1].to_i
-        end 
-      end
-    rescue 
-      return nil 
-    end 
   end
 
 end
