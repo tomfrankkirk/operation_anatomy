@@ -33,12 +33,17 @@ module RoutingHelpers
 
   end
 
+  # Method called upon server startup to insert manual teaching links in all pages 
+  # Cycle through each topic and all levels and look for ERB teaching pages in the 
+  # corresponding directory. Then evaluate the link templates (which are of the 
+  # form manualLink(destTopic, destLevel, linkBody, destPart)) in this context using
+  # the binding call. The results are saved as HTML files. 
   def self.preprocessManualTeachingLinks
     Topic.all.each do |topic| 
       topic.numberOfLevels.times do |level| 
         if files = Dir["teaching/#{topic.shortName}/#{topic.levelName(level)}/*.erb"]
           files.each do |f|
-            begin 
+            begin
               rawStr = File.read(f)
               template = ERB.new(rawStr)
               flatHTMLString = template.result(binding)
@@ -75,7 +80,27 @@ module RoutingHelpers
     return dir 
   end 
 
-
-
+  # Send both HTML and ERB pages at the given location.
+  # 
+  # @param topicName [String] short topic name 
+  # @param forLevel [String] short level name 
+  # @return [[String]] paths, sorted from part 0 to N (N < 10)
+  def self.teachingPagePaths(topicName, forLevel)
+    begin 
+      pathStr = teachingDirectory(topicName, forLevel) 
+      paths = Dir[pathStr + '*.html']
+      if paths == []
+        return nil
+      else
+        return paths.sort_by do |s|
+          # Some funky regexp -- disabled and back to simple extract last number between P and html! s[/\d{2,}/].to_i
+          # so make sure that there are less than 10 pages in a level...
+          s[s.rindex('P') + 1..s.rindex('.html') - 1].to_i
+        end 
+      end
+    rescue 
+      return nil 
+    end 
+  end
 
 end 
