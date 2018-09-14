@@ -5,6 +5,12 @@ class DictionaryEntriesController < EndUserController
     @entries = DictionaryEntry.order(:title)
   end
 
+  # Respond to remote JS requests to define a snippet
+  # The DictionaryEntry.searchForEntry() method sanitises the string and checks combos. 
+  # If no entry found returns an empty definition 
+  # 
+  # @param [String] searchString the string to attempt to define 
+  # @return [JSON] hash { definition, title, example }, definition = '' to denote no entry 
   def define
     respond_to do |format|
       format.json do
