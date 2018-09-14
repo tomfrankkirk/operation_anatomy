@@ -15,4 +15,14 @@ class TeachingControllerTest < ActionDispatch::IntegrationTest
       end
     end
   end
+
+  test 'generate manual teaching links' do
+    begin 
+      RoutingHelpers::preprocessManualTeachingLinks
+      assert true 
+    rescue Exception => e
+      puts e.message 
+      assert false 
+    end
+  end 
 end
