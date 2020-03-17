@@ -219,7 +219,7 @@ $backgroundMarginTop: -99px;
 }
 
 
-/* ================================== NAVBAR ======================================= */
+/* ================================== NAVBAR, FLASH ================================== */
 
 $navbar-element-height: 35px; 
 $navbar-element-margin: 7px; 
@@ -309,6 +309,10 @@ ul.footer {
 .footer-element.right {
    margin-right: 10px; 
    float: right; 
+}
+
+.flash {
+   margin-top: $navbar-element-height + 25;  
 }
 
 /* ================================ ICON MENUS ===================================== */
