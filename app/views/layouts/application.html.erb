@@ -112,20 +112,22 @@
 
 
    <!-- Flash messages here -->
-   <% if flash[:successMessage] %>
-   <div>
-      <script> window.alert("<%= flash[:successMessage] %>"); </script>
+   <div class="flash">
+      <% if flash[:successMessage] %>
+      <div>
+         <script> window.alert("<%= flash[:successMessage] %>"); </script>
+      </div>
+      <% end %>
+      <% flash.each do |name, msg| %>
+         <%= content_tag :div, msg, class: name %>
+      <% end %>
    </div>
-   <% end %>
-   <% flash.each do |name, msg| -%>
-      <%= content_tag :div, msg, class: name %>
-   <% end -%>
 
 
     <!-- Yield to the main content itself, if devise center the whole lot.  -->
    <% if controller_name == "sessions" %>
       <div class="mainPage centered">
-      <% else %>
+   <% else %>
       <div class="mainPage"> 
    <% end %>
       <%= yield %>

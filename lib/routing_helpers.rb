@@ -1,3 +1,5 @@
+require 'pathname'
+
 module RoutingHelpers
 
   def self.sayHello
@@ -18,18 +20,21 @@ module RoutingHelpers
   def self.manualLink(destTopic, destLevel, linkBody, destPart=nil)
     # Check that both the topic and level are correct. Then generate the link 
     if topic = Topic.where(short_name: destTopic).first
-      if topic.shortLevelNames.include? destLevel 
+      if topic.level_names.include? destLevel 
         link = if destPart
           "<a href='/teaching?id=#{topic.id}&forLevel=#{destLevel.downcase}&currentPart=#{destPart}'> #{linkBody} </a>"
         else 
           "<a href='/teaching?id=#{topic.id}&forLevel=#{destLevel.downcase}'>#{linkBody}</a>"
         end
         return link
+      else 
+        raise "Level #{destLevel} does not exist for topic #{destTopic}"
       end 
     end 
 
-    # If either of the above tests failed then we will return this error link. 
-    return "<a href=\"javascript:window.alert('Sorry, this link is not currently available');\"> #{linkBody} </a>"
+    # If either of the above tests failed then we will return this error link.
+    raise "Manual link error on #{f}, topic #{destTopic}, level #{destLevel}" 
+    # return "<a href=\"javascript:window.alert('Sorry, this link is not currently available');\"> #{linkBody} </a>"
 
   end
 
@@ -39,9 +44,13 @@ module RoutingHelpers
   # form manualLink(destTopic, destLevel, linkBody, destPart)) in this context using
   # the binding call. The results are saved as HTML files. 
   def self.preprocessManualTeachingLinks
-    Topic.all.each do |topic| 
-      topic.numberOfLevels.times do |level| 
-        if files = Dir["teaching/#{topic.shortName}/#{topic.levelName(level)}/*.erb"]
+    puts "Expanding manual teaching page links"
+    # This will crash on rake db:setup as the table doesn't actually exist yet.
+    # So check for existence first 
+    if ActiveRecord::Base.connection.data_source_exists? 'topics'
+      Topic.all.each do |t| 
+        t.level_names.map.with_index do |l, i|
+          files = Dir["teaching/#{t.shortName}/#{i} #{l}/*.erb"]
           files.each do |f|
             begin
               rawStr = File.read(f)
@@ -55,7 +64,7 @@ module RoutingHelpers
               raise "ManualLinkError"
             end 
           end 
-        end  
+        end 
       end 
     end 
   end 
@@ -80,27 +89,65 @@ module RoutingHelpers
     return dir 
   end 
 
-  # Send both HTML and ERB pages at the given location.
+
+  # Send HTML and pages at the given location.
   # 
   # @param topicName [String] short topic name 
   # @param forLevel [String] short level name 
   # @return [[String]] paths, sorted from part 0 to N (N < 10)
   def self.teachingPagePaths(topicName, forLevel)
-    begin 
-      pathStr = teachingDirectory(topicName, forLevel) 
-      paths = Dir[pathStr + '*.html']
-      if paths == []
-        return nil
-      else
-        return paths.sort_by do |s|
-          # Some funky regexp -- disabled and back to simple extract last number between P and html! s[/\d{2,}/].to_i
-          # so make sure that there are less than 10 pages in a level...
-          s[s.rindex('P') + 1..s.rindex('.html') - 1].to_i
-        end 
-      end
-    rescue 
-      return nil 
+    pathStr = teachingDirectory(topicName, forLevel) 
+    paths = Dir[pathStr + '*.html']
+    if paths.empty?
+      raise "NoPathsFound"
     end 
+    return paths.sort_by do |s|
+      # Some funky regexp -- disabled and back to simple extract last number between P and html! s[/\d{2,}/].to_i
+      # so make sure that there are less than 10 pages in a level...
+      s[s.rindex('P') + 1..s.rindex('.html') - 1].to_i
+    end 
+  
   end
+
+  # Load teaching paths for all HTML pages 
+  def self.prepareTeachingPaths()
+    puts "Preparing teaching paths"
+    if ActiveRecord::Base.connection.data_source_exists? 'topics'
+      Topic.all.each do |t|
+        paths = t.level_names.map.with_index do |l, i|
+          ps = Dir["teaching/#{t.shortName}/#{i} #{l}/*.html"]
+          ps.sort_by do |s| 
+            # Some funky regexp -- disabled and back to simple extract last number between P and html! s[/\d{2,}/].to_i
+            # so make sure that there are less than 10 pages in a level...
+            s[s.rindex('P') + 1..s.rindex('.html') - 1].to_i
+          end 
+        end
+        t.paths = paths 
+        t.save 
+      end
+    end
+    return 
+  end
+
+
+  # Read out level names from each topic's directory structure, save them 
+  # in order to the topic's level_names field on the table. 
+  def self.loadLevelNames()
+    puts "Loading level names"
+    if ActiveRecord::Base.connection.data_source_exists? 'topics'
+      Topic.all.each do |t|
+        dirs = Dir["teaching/#{t.shortName}/*"]
+        dirs = dirs.filter { |d| File.directory?(d) }
+        dirs = dirs.map do |d|
+          p = Pathname.new(d)
+          String(p.basename)
+        end 
+        dirs = dirs.sort_by { |d| d.split[0] }
+        paths = dirs.map { |d| (d[1..]).strip }
+        t.level_names = paths 
+        t.save
+      end 
+    end
+  end 
 
 end 

@@ -4,7 +4,9 @@
 # The data can then be loaded with the rails db:seed command (or created alongside the database with db:setup).
 
 # If no users exist, create one
-User.create(email: 'tomfrankkirk@gmail.com', password: 'password', isAdmin: true)
+if User.all.empty?
+    User.create(email: 'tomfrankkirk@gmail.com', password: 'password', isAdmin: true)
+end
 # User.create(email: "christopher.horton@gtc.ox.ac.uk", password: "AnatomicalWalkthrough")
 
 # Delete all questions to reseed them
@@ -14,8 +16,8 @@ System.delete_all
 
 # Seed systems
 msk = System.create(name: 'Musculoskeletal')
-msk.level_names = ['Introduction', 'Bones', 'Ligaments', 'Vasculature', 'Innervation', 'Movements', 'Muscles', 'Clinical Relevance']
-msk.save
+# msk.level_names = ['Introduction', 'Bones', 'Ligaments', 'Vasculature', 'Innervation', 'Movements', 'Muscles', 'Clinical Relevance']
+# msk.save
 
 cv = System.create(name: 'Cardiovascular')
 gi = System.create(name: 'Gastrointestinal')

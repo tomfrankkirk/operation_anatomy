@@ -42,7 +42,7 @@ class QuestionsController < EndUserController
         end
 
         # Send the next question, if it exists
-        if qID = current_user.sendNextQuestionID
+        if qID = current_user.sendQuestion
           @question = Question.find(qID)
           render 'respond.js'
           return
@@ -53,7 +53,7 @@ class QuestionsController < EndUserController
           if !current_user.hasFinishedQuestions(params[:id], params[:levelName])
             flash[:errorMessage] = 'Warning, could not save scores for previous level'
           else
-            score = current_user.getLevelScore(params[:id], params[:levelName])
+            score = current_user.setScore(params[:id], params[:levelName])
             flash[:successMessage] = if score > User::THRESHOLD
               "Congratulations! You scored #{score}% so the next level is available."
             else 

@@ -24,30 +24,29 @@ class TeachingController < EndUserController
     # HTML response for the first time landing on a level, JS thereafter. 
     respond_to :html, :js 
 
-    begin 
+    # begin 
       @topic = Topic.find(params[:id])
       params[:id] = @topic.id
-      @level = params[:forLevel]
+      @level = params[:forLevel].to_i
 
       # Attempt to get the paths for this topic and level. Returns nil if files not found.
-      @paths = RoutingHelpers::teachingPagePaths(@topic.shortName, @level)
+      @paths = @topic.paths[@level]
 
       # Get current part, if it exists, or initialise to 0.
       @currentPart = ((p = params[:currentPart]) ? p.to_i : 0)
-      @path = @paths[@currentPart]
+      path = @paths[@currentPart]
+      @flatHTMLString = File.read(path)
+
+      if not File.exist?(path)
+        redirect_to @topic 
+        flash[:error] = "Error loading #{path}"
+        return 
+      end 
 
       # If this is the last page of the level, set the level as viewed
       if @currentPart + 1 == @paths.count
         current_user.setLevelViewed(@topic.id, @level) unless (current_user.inAdminMode || current_user.revisionMode) 
       end
-
-      @flatHTMLString = File.read(@path)
-
-    rescue Exception => e
-      puts e.message 
-      flash[:error] = 'Error loading teaching page'
-      redirect_to topics_path
-    end
 
   end
 

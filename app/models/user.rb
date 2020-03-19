@@ -22,18 +22,18 @@ class User < ApplicationRecord
   # Load and shuffle the question IDs for the topic/level name and store them in the user's questionIDs scratch variable. 
   # 
   # @param topicID [Int] the ID for topic 
-  # @param levelName [String] the short level name within the topic
+  # @param level [Int] level number 
   # @return [None]
-  def prepareQuestions(topicID, levelName)
+  def prepareQuestions(topicID, level)
     self.currentScore = 0
-    self.questionIDs = Topic.find(topicID).fetchQuestionIDsForLevel(levelName)
+    self.questionIDs = Topic.find(topicID).fetchQuestionIDsForLevel(level)
     self.save
   end
 
   # Pop a question ID off the user's questionID. 
   # 
   # @return [Int] a question ID. 
-  def sendNextQuestionID
+  def sendQuestion
     nextq = questionIDs.pop
     self.save
     return nextq
@@ -42,29 +42,29 @@ class User < ApplicationRecord
   # At the end of a level, convert the user's current score to a percentage and save into their score record. 
   # 
   # @param topicID [Int] the ID of the topic for which questions were answered
-  # @param levelName [String] the name of the level finished. 
+  # @param level [Int] level number 
   # @return [Bool] to indicate success or failure 
-  def hasFinishedQuestions(topicID, levelName)
-    if topicID && levelName
+  def hasFinishedQuestions(topicID, level)
+    if topicID && level
 
       # Convert score to percentage
       topic = Topic.find(topicID)
-      score = (100 * currentScore.to_f / topic.numberOfQuestionsInLevel(levelName)).round
+      score = (100 * currentScore.to_f / topic.numberOfQuestionsInLevel(level)).round
 
       # If not in revision mode, save
       unless revisionMode
-        unless updateLevelScore(topicID, levelName, score)
-          puts 'Warning: did not manage to save score'
+        unless updateLevelScore(topicID, level, score)
+          return false 
         end
       end
 
       # Reset and save
-      self.wipeCurrentScore
+      self.currentScore = 0 
       self.save
       return true
 
     else
-      puts 'User#hasFinishedQuestions error: nil topicID and levelName passed'
+      puts 'User#hasFinishedQuestions error: nil topicID and level passed'
       return false
     end
   end
@@ -74,11 +74,6 @@ class User < ApplicationRecord
   # Increment the users score for the current set of questions 
   def incrementCurrentScore
     self.currentScore = currentScore + 1
-  end
-
-  # Reset user's current score 
-  def wipeCurrentScore
-    self.currentScore = 0
   end
 
   # Return user's current score 
@@ -91,10 +86,10 @@ class User < ApplicationRecord
   # as the key (not number)
   # 
   # @param topicID [Int] the topic ID 
-  # @param levelName [String] short level name 
+  # @param level [Int] level number 
   # @param score [Int] score in percent 
   # @return [Bool] to indicate success 
-  def updateLevelScore(topicID, levelName, score)
+  def setScore(topicID, level, score)
 
     # Load topic and level number, prepare score record object 
     topic = Topic.find(topicID)
@@ -102,13 +97,14 @@ class User < ApplicationRecord
     
     # Check for an existing score hash for this topic, which should exist. 
     # Is the new score greater than existing? Overwrite if so.
-    if existingTopicHash = scoresDictionary[topic.shortName]
+    if topicScores = scoresDictionary[topic.shortName]
 
-      if levelHash = existingTopicHash[levelName]
-        existingTopicHash[levelName] = scoreRecord unless levelHash["score"] >= score
+      if existing = topicScores[level]
+        topicScores[level] = scoreRecord unless existing[:score] >= score
       # No existing score for this level, so append the new score.
       else
-        existingTopicHash[levelName] = scoreRecord
+        raise "Level should be length of existing score array" unless topicScores.count == level
+        topicScores[level] = scoreRecord
       end
       return true 
 
@@ -122,83 +118,71 @@ class User < ApplicationRecord
   # Get score for level and topic. Return 0 if never attempted. 
   # 
   # @param topicID [Int] topic ID 
-  # @param levelName [String] short level name 
+  # @param level [Int] level number 
   # @return [Int] score
-  def getLevelScore(topicID, levelName)
+  def getScore(topicID, levelNumber)
     topic = Topic.find(topicID)
 
     # Check the level has been attempted, return score if so 
-    if topicHash = scoresDictionary[topic.shortName]
-      if record = topicHash[levelName]
+    if topicScores = scoresDictionary[topic.shortName]
+      if record = topicScores[levelNumber]
         return record["score"]
       end
     end
 
-    # Not attempted
     return 0
   end
 
   # Return the highest level for which the threshold score has been reached. 
-  # Return 0 if the topic has not yet been attempted. 
+  # Return -1 if the topic has not yet been attempted. 
   # 
   # @param topicID [Int] topic ID 
-  # @return [Int] the level, 0 if not topic not attempted. 
-  def getHighestLevelPassed(topicID)
+  # @return [Int] the level, -1 if not topic not attempted. 
+  def highestPassedLevel(topicID)
     topic = Topic.find(topicID)
 
     # If scores exist for the topic, pick the max that is above threshold
-    if existingTopicHash = scoresDictionary[topic.shortName]
-      maxLevelScored = existingTopicHash.max_by { |l, r| 
-        r['score'] >= THRESHOLD ? topic.levelNumber(l) : -1
-      }
-      return topic.levelNumber(maxLevelScored[0])
-
-    # Topic never attempted, return nil 
-    else
-      return -1 
+    if topicScores = scoresDictionary[topic.shortName]
+      scores = topicScores.filter { |s| s["score"] >= THRESHOLD }
+      return scores.count - 1
     end 
 
-  end 
+    # Topic never attempted, return -1 
+    return -1 
 
-  # Check the highest level questions the user should have access to for a particular topic.
-  # 
-  # @param topicID [Int] the topic ID 
-  # @return [Int] level number (0-indexed)
-  def checkLevelAccess(topicID)
-    maxView = getHighestViewedLevel(topicID)
-    maxLevelScored = getHighestLevelPassed(topicID)
-    maxView > maxLevelScored ? maxLevelScored + 1 : maxLevelScored
-  end
+  end 
 
   # Initialise the level 0 score for the user when first attempting a topic. 
   # As level 0 does not have any questions, a dummy record is created to grant users access to level 1. 
   # 
   # @param topicID [Int] topic ID to initialise the dummy for 
-  def initialiseDummyScoreForTopic(topicID)
+  def initialiseScoreForTopic(topicID)
     topic = Topic.find(topicID)
     dummy = ScoreRecord.new(100, 'NULL')
 
     # Initialise the score hash for this topic 
-    scoresDictionary[topic.shortName] = { 'introduction' => dummy }
+    scoresDictionary[topic.shortName] = [dummy]
     self.save
   end
   
+  # Level view methods --------------------------------------------------------
+
   # Record the levels viewed for each topic.
   # If no questions have been attempted for the topic then also initialise 
   # the score record for that topic (setting a dummy score for introduction)
   # 
   # @param topicID [Int] topic ID 
-  # @param levelName [String] short level name 
-  def setLevelViewed(topicID, levelName)
+  # @param level [Int] level number 
+  def setLevelViewed(topicID, levelNumber)
     topic = Topic.find(topicID)
     
-    if existingArray = levelViewsDictionary[topic.shortName]
-      existingArray.append(levelName) unless existingArray.include?(levelName)
+    if existing = levelViewsDictionary[topic.shortName] 
+      levelViewsDictionary[topic.shortName] = levelNumber unless existing > levelNumber
 
-      # Topic has not been attempted -> initialse dummy 
+    # Topic has not been attempted -> initialse the hash for this topic
     else
-      levelViewsDictionary[topic.shortName] =  [ levelName ]
-      initialiseDummyScoreForTopic(topicID)
+      levelViewsDictionary[topic.shortName] = levelNumber
+      initialiseScoreForTopic(topicID)
     end
 
     self.save
@@ -208,20 +192,29 @@ class User < ApplicationRecord
   # 
   # @param topicID [Int] topic ID 
   # @return [Int] level number 
-  def getHighestViewedLevel(topicID)
+  def highestViewedLevel(topicID)
     topic = Topic.find(topicID)
 
     # If a view hash exists, use that. 
-    if existingArray = levelViewsDictionary[topic.shortName]        
-      levelNums = existingArray.map { |name| 
-        topic.levelNumber(name)
-      }
-      return levelNums.max
+    if highest = levelViewsDictionary[topic.shortName]        
+      return highest
     end 
 
     # If topic never viewed return -1 
-    return -1 
+    return -1
 
+  end
+
+  # Other methods -------------------------------------------------------------
+
+  # Check the highest level questions the user should have access to for a particular topic.
+  # 
+  # @param topicID [Int] the topic ID 
+  # @return [Int] level number (0-indexed)
+  def levelAccess(topicID)
+    maxView = highestViewedLevel(topicID)
+    maxLevelScored = highestPassedLevel(topicID)
+    maxView >= maxLevelScored ? maxLevelScored + 1 : maxLevelScored
   end
 
   # Flip the user's current revision state 
@@ -235,4 +228,5 @@ class User < ApplicationRecord
     self.inAdminMode = !inAdminMode if isAdmin
     self.save
   end
+
 end

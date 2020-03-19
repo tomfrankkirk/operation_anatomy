@@ -219,7 +219,11 @@ $backgroundMarginTop: -99px;
 }
 
 
+<<<<<<< HEAD
 /* ================================== NAVBAR, FLASH ================================== */
+=======
+/* ================================== NAVBAR ======================================= */
+>>>>>>> 479722aa9069dd083387cae24acd0ce3aae3ccb5
 
 $navbar-element-height: 35px; 
 $navbar-element-margin: 7px; 

@@ -1,0 +1,15 @@
+<%= render :text => @flatHTMLString.html_safe %>
+<br>
+
+<div class="teachingPartialFooter">
+<% if @currentPart > 0 %>
+    <%= link_to 'Previous', controller: 'teaching', action: 'show', remote: true, id: @topic.id, forLevel: @level, currentPart: @currentPart - 1 %> 
+<% end %>
+
+<%= (@currentPart + 1).to_s + '/' + (@paths.count).to_s %>
+
+<% if @currentPart < (@paths.count - 1) %>
+    <%= link_to 'Next', controller: 'teaching', action: 'show', remote: true, id: @topic.id, forLevel: @level,  currentPart: @currentPart + 1 %>
+<% end %>
+</div> 
+

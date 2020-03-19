@@ -20,12 +20,4 @@ class SystemTest < ActiveSupport::TestCase
     end
   end
 
-  test 'level names' do
-    System.all.each do |s|
-      s.shortLevelNames.each do |l|
-        path = "app/assets/images/icons/#{l}.png"
-        assert File.file?(path), "Could not find icon #{l}"
-      end
-    end
-  end
 end

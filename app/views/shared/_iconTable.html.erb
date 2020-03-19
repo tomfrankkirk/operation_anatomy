@@ -7,8 +7,8 @@
 <% nItems = items.count %>
 <% nRows = (nItems / nCols.to_f).ceil %>
 
-<% max_level_access = max_level_access.nil? ? nItems : max_level_access %>
-
+<% max_level_access ||= nItems %>
+<% max_view_access ||= nItems %>
 
 <table class="iconMenu">
 <% nRows.times do |r| %>

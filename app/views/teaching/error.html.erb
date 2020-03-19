@@ -1,0 +1,6 @@
+<h1>Sorry - an error!</h1>
+
+<%= "There was an error attempting to fetch teaching page #{@topic.name} #{params[:levelName]}"%>
+
+<br>
+<%= link_to 'Back', controller: 'topics', action: 'show', id: @topic.id %>

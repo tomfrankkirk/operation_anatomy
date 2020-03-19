@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180908202759) do
+ActiveRecord::Schema.define(version: 20190215194934) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -47,17 +47,18 @@ ActiveRecord::Schema.define(version: 20180908202759) do
 
   create_table "systems", force: :cascade do |t|
     t.string   "name"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
-    t.text     "level_names"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "topics", force: :cascade do |t|
     t.string   "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
     t.integer  "system_id"
     t.string   "short_name"
+    t.jsonb    "paths",       default: {}
+    t.text     "level_names"
     t.index ["short_name"], name: "index_topics_on_short_name", using: :btree
     t.index ["system_id"], name: "index_topics_on_system_id", using: :btree
   end

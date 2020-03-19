@@ -17,14 +17,14 @@ class TopicsController < EndUserController
     @admin = (current_user.isAdmin && current_user.inAdminMode)
 
     # If not in revision mode, check max level access, otherwise set as nil.
-    @maxLevelAccess = @revisionMode ? nil : current_user.checkLevelAccess(@topic.id) 
-    @maxViewAccess = current_user.getHighestViewedLevel(@topic.id) + 1
+    @maxLevelAccess = @revisionMode ? nil : current_user.levelAccess(@topic.id) 
+    @maxViewAccess = current_user.highestViewedLevel(@topic.id) + 1
 
     # Prepare items for the table cell view. 
-    @levelNames = @topic.levelNames
+    @iconNames = @topic.levelNames
     @pathRoot = "/teaching?id=#{@topic.id}&forLevel="
-    @pathStubs = @topic.shortLevelNames
-    @iconStubs = @topic.shortLevelNames
+    @pathStubs = (0..@iconNames.count-1).to_a.map { |i| i.to_s }
+    @iconStubs = @topic.level_names
 
     # Reset the session parameters. 
     session[:forLevel] = nil
