@@ -1,24 +1,4 @@
-# README
+# Operation Anatomy
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This is a prototype rails app that was developed to teach anatomy to medical students at the University of Oxford. Unfortunately the project never went ahead, so the app is unfinished. This repo contains only the framework (the actual teaching material is stored elsewhere) 
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
