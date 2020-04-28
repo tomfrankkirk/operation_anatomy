@@ -62,3 +62,6 @@ gem 'devise'
 
 # for detecting browser type
 gem 'browser'
+
+# dependabot security update
+gem "actionview", ">= 5.2.4.2"
